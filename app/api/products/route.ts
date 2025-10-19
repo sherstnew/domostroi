@@ -13,7 +13,7 @@ export const mockProducts: Product[] = [
     protein: 0.3,
     carbs: 14,
     fat: 0.2,
-    image: '/api/placeholder/400/300',
+    image: '/products/apples.png',
     category: 'Фрукты',
     tags: ['без глютена', 'веган', 'низкий ГИ', 'органический'],
     stores: [
@@ -38,7 +38,7 @@ export const mockProducts: Product[] = [
     protein: 1,
     carbs: 2,
     fat: 3,
-    image: '/api/placeholder/400/300',
+    image: '/products/mindal.png',
     category: 'Напитки',
     tags: ['без лактозы', 'веган', 'без сахара', 'низкокалорийный'],
     stores: [
@@ -62,7 +62,7 @@ export const mockProducts: Product[] = [
     protein: 4.4,
     carbs: 21,
     fat: 1.9,
-    image: '/api/placeholder/400/300',
+    image: '/products/kinoa.png',
     category: 'Крупы',
     tags: ['без глютена', 'веган', 'высокий белок', 'органический'],
     stores: [
@@ -87,7 +87,7 @@ export const mockProducts: Product[] = [
     protein: 20,
     carbs: 0,
     fat: 13,
-    image: '/api/placeholder/400/300',
+    image: '/products/losos.png',
     category: 'Рыба',
     tags: ['высокий белок', 'омега-3', 'низкие углеводы'],
     stores: [
@@ -111,7 +111,7 @@ export const mockProducts: Product[] = [
     protein: 2,
     carbs: 9,
     fat: 15,
-    image: '/api/placeholder/400/300',
+    image: '/products/avocado.png',
     category: 'Овощи',
     tags: ['полезные жиры', 'веган', 'без глютена', 'высокая калорийность'],
     stores: [
@@ -136,7 +136,7 @@ export const mockProducts: Product[] = [
     protein: 13,
     carbs: 72,
     fat: 3,
-    image: '/api/placeholder/400/300',
+    image: '/products/grechka.png',
     category: 'Крупы',
     tags: ['без глютена', 'веган', 'высокий белок', 'бюджетный'],
     stores: [
@@ -162,7 +162,7 @@ export const mockProducts: Product[] = [
     protein: 8,
     carbs: 40,
     fat: 3,
-    image: '/api/placeholder/400/300',
+    image: '/products/hleb.png',
     category: 'Хлеб',
     tags: ['хлеб', 'цельнозерновой', 'без сахара'],
     stores: [ { storeId: '1', available: true, aisle: 'Хлеб', shelf: 'H1', price: 80, lastUpdated: new Date() } ],
@@ -183,7 +183,7 @@ export const mockProducts: Product[] = [
     protein: 7,
     carbs: 45,
     fat: 2,
-    image: '/api/placeholder/400/300',
+    image: '/products/baton.jpg',
     category: 'Хлеб',
     tags: ['хлеб', 'пшеничный'],
     stores: [ { storeId: '2', available: true, aisle: 'Хлеб', shelf: 'H2', price: 60, lastUpdated: new Date() } ],

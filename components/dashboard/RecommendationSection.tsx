@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react"
 import CircularGallery from '@/components/CircularGallery'
 
 interface ProductShort {
-  id: string
+  _id: string
   name: string
   price: number
   calories: number
@@ -145,18 +145,18 @@ export default function RecommendationSection({ products, favorites, onToggleFav
   return (
     <section className="card p-6 mb-8">
       <h2 className="text-2xl font-bold text-[var(--dark-green)] mb-6 font-serif">Рекомендуем для вас</h2>
-      <div className="w-full h-[50vh] mb-6">
+      {/* <div className="w-full h-[50vh] mb-6"> */}
         {/* Circular gallery visual */}
         {/* render images + text in WebGL gallery */}
-        {typeof window !== 'undefined' && (
-          <CircularGallery items={products.map(p => ({ image: p.image, text: p.name }))} />
-        )}
-      </div>
+        {/* {typeof window !== 'undefined' && (
+          <CircularGallery textColor='#000000' items={products.map(p => ({ image: p.image, text: p.name }))} />
+        )} */}
+      {/* </div> */}
 
       {/* Below the gallery: actionable horizontal product list */}
       <div className="flex gap-4 overflow-x-auto py-2">
         {products.map(p => (
-          <div key={p.id} className="min-w-[220px] border border-gray-200 rounded-xl p-3 flex-shrink-0">
+          <div key={p._id} className="min-w-[220px] border border-gray-200 rounded-xl p-3 flex-shrink-0">
             <div className="mb-2 bg-gray-100 rounded overflow-hidden h-28">
               <img src={p.image} alt={p.name} className="w-full h-full object-cover" />
             </div>
@@ -166,9 +166,9 @@ export default function RecommendationSection({ products, favorites, onToggleFav
               <div className="text-sm text-gray-600">{p.calories} ккал</div>
             </div>
             <div className="flex items-center gap-2">
-              <button onClick={() => toggleFavoriteRemote(p.id)} disabled={actionInProgress} className={`px-2 py-1 rounded ${favorites.includes(p.id) ? 'text-[var(--accent-orange)]' : 'text-gray-400'}`}>♥</button>
-              <button onClick={() => setModalOpenFor(p.id)} className="px-2 py-1 border rounded text-sm">В группу</button>
-              <a href={`/stores/${p.id}`} className="px-2 py-1 border rounded text-sm">Магазин</a>
+              <button onClick={() => toggleFavoriteRemote(p._id)} disabled={actionInProgress} className={`px-2 py-1 rounded ${favorites.includes(p._id) ? 'text-[var(--accent-orange)]' : 'text-gray-400'}`}>♥</button>
+              <button onClick={() => setModalOpenFor(p._id)} className="px-2 py-1 border rounded text-sm">В группу</button>
+              <a href={`/stores/${p._id}`} className="px-2 py-1 border rounded text-sm">Магазин</a>
             </div>
           </div>
         ))}

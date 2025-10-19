@@ -6,71 +6,7 @@ import { useAuth } from "@/context/AuthContext";
 import ProductSearch from "@/components/dashboard/ProductSearch";
 import RecommendationSection from "@/components/dashboard/RecommendationSection";
 import ProductGroups from "@/components/dashboard/ProductGroups";
-
-// Моковые данные продуктов
-const mockProducts = [
-  {
-    id: "1",
-    name: "Органические яблоки Гренни Смит",
-    description: "Свежие органические яблоки с низким гликемическим индексом",
-    price: 320,
-    calories: 52,
-    protein: 0.3,
-    carbs: 14,
-    fat: 0.2,
-    image: "/api/placeholder/300/200",
-    stores: [
-      { storeId: "1", available: true, aisle: "Фрукты", shelf: "A3" },
-      { storeId: "2", available: true, aisle: "Органик", shelf: "B1" },
-    ],
-    tags: ["без глютена", "веган", "низкий ГИ"],
-  },
-  {
-    id: "2",
-    name: "Цельнозерновой хлеб",
-    description: "Свежий хлеб из цельного зерна",
-    price: 80,
-    calories: 250,
-    protein: 8,
-    carbs: 40,
-    fat: 3,
-    image: "/api/placeholder/300/200",
-    stores: [{ storeId: "1", available: true, aisle: "Хлеб", shelf: "H1" }],
-    tags: ["цельнозерновой", "без сахара"],
-  },
-  {
-    id: "3",
-    name: "Батон пшеничный",
-    description: "Классический пшеничный батон",
-    price: 60,
-    calories: 270,
-    protein: 7,
-    carbs: 45,
-    fat: 2,
-    image: "/api/placeholder/300/200",
-    stores: [{ storeId: "2", available: true, aisle: "Хлеб", shelf: "H2" }],
-    tags: ["пшеничный"],
-  },
-  {
-    id: "4",
-    name: "Творог 5%",
-    description: "Нежный творог 5% жирности",
-    price: 120,
-    calories: 120,
-    protein: 18,
-    carbs: 3,
-    fat: 5,
-    image: "/api/placeholder/300/200",
-    stores: [{ storeId: "1", available: true, aisle: "Молоко", shelf: "M1" }],
-    tags: ["молоко", "без глютена"],
-  },
-];
-
-const mockStores = [
-  { id: "1", name: "GreenMarket Центр", address: "ул. Центральная, 15" },
-  { id: "2", name: "BioStore", address: "пр. Экологичный, 42" },
-  { id: "3", name: "FreshCorner", address: "ул. Свежая, 8" },
-];
+import { mockProducts } from '../api/products/route';
 
 export default function Dashboard() {
   const [favorites, setFavorites] = useState<string[]>([]);
@@ -198,7 +134,7 @@ export default function Dashboard() {
               </div>
             ) : (
               searchResults.map((product) => (
-                <div key={product.id} className="card p-6">
+                <div key={product._id} className="card p-6">
                   <div className="aspect-w-16 aspect-h-9 mb-4 bg-gray-200 rounded-lg overflow-hidden">
                     <img
                       src={product.image}
@@ -242,20 +178,20 @@ export default function Dashboard() {
                   <div className="flex justify-between items-center">
                       <div className="flex items-center gap-2">
                         <button
-                          onClick={() => toggleFavorite(product.id)}
+                          onClick={() => toggleFavorite(product._id)}
                           className={`p-2 rounded-full text-2xl ${
-                            favorites.includes(product.id)
+                            favorites.includes(product._id)
                               ? "text-[var(--accent-orange)]"
                               : "text-gray-400 hover:text-[var(--accent-orange)]"
                           }`}
-                          aria-pressed={favorites.includes(product.id)}
+                          aria-pressed={favorites.includes(product._id)}
                         >
                           ♥
                         </button>
-                        <button onClick={() => setShowAddToGroupFor(product.id)} className="px-3 py-1 text-sm border rounded">Добавить в группу</button>
+                        <button onClick={() => setShowAddToGroupFor(product._id)} className="px-3 py-1 text-sm border rounded">Добавить в группу</button>
                       </div>
                     <a
-                      href={`/products/${product.id}`}
+                      href={`/products/${product._id}`}
                       className="btn-primary text-sm px-4 py-2"
                     >
                       Подробнее
@@ -283,7 +219,7 @@ export default function Dashboard() {
                 <select value={selectedGroup} onChange={e => setSelectedGroup(e.target.value)} className="w-full px-3 py-2 border rounded mb-3">
                   <option value="">-- Без группы (только в избранное) --</option>
                   {groups.map(g => (
-                    <option key={g._id || g.id} value={g._id || g.id}>{g.name}</option>
+                    <option key={g._id || g._id} value={g._id || g._id}>{g.name}</option>
                   ))}
                 </select>
                 <div className="flex gap-2 justify-end">
