@@ -1,0 +1,33 @@
+'use client'
+
+interface CategorySelectorProps {
+  options: string[]
+  selectedOptions: string[]
+  onOptionToggle: (option: string) => void
+}
+
+export default function CategorySelector({ 
+  options, 
+  selectedOptions, 
+  onOptionToggle 
+}: CategorySelectorProps) {
+  return (
+    <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+      {options.map((option) => (
+        <button
+          key={option}
+          onClick={() => onOptionToggle(option)}
+          className={`
+            p-4 rounded-xl border-2 transition-all duration-200 text-center
+            ${selectedOptions.includes(option)
+              ? 'bg-[var(--light-green)] border-[var(--light-green)] text-white shadow-lg transform scale-105'
+              : 'bg-white border-gray-200 text-gray-700 hover:border-[var(--light-green)] hover:shadow-md'
+            }
+          `}
+        >
+          <span className="font-medium">{option}</span>
+        </button>
+      ))}
+    </div>
+  )
+}
