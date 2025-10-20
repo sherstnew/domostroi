@@ -20,8 +20,8 @@ export default function CategorySelector({
           className={`
             p-4 rounded-xl border-2 transition-all duration-200 text-center
             ${selectedOptions.includes(option)
-              ? 'bg-[var(--light-green)] border-[var(--light-green)] text-white shadow-lg transform scale-105'
-              : 'bg-white border-gray-200 text-gray-700 hover:border-[var(--light-green)] hover:shadow-md'
+              ? 'bg-[var(--light-green)] border-[var(--light-green)] text-white shadow-lg'
+              : 'bg-white border-gray-200 text-[var(--text-color)]/90 hover:border-[var(--light-green)] hover:shadow-md'
             }
           `}
         >

@@ -23,13 +23,18 @@ interface Product {
     shelf?: string
     price?: number
   }>
-  nutritionalInfo: {
-    glutenFree: boolean
-    lactoseFree: boolean
-    vegan: boolean
-    diabeticFriendly: boolean
-    lowGi: boolean
+  nutritionalInfo?: {
+    glutenFree?: boolean
+    lactoseFree?: boolean
+    vegan?: boolean
+    diabeticFriendly?: boolean
+    lowGi?: boolean
   }
+  // optional extended fields
+  nutrition?: { calories?: number; protein?: number; carbs?: number; fat?: number }
+  packageSize?: number
+  ingredients?: string
+  composition?: string
 }
 
 interface Store {
@@ -162,95 +167,104 @@ export default function ProductPage() {
           {/* Информация о продукте */}
           <div className="space-y-6">
             <div>
-              <h1 className="text-4xl font-bold text-[var(--dark-green)] mb-4 font-serif">
-                {product.name}
-              </h1>
+              <h1 className="text-4xl font-bold text-[var(--dark-green)] mb-4 font-serif">{product.name}</h1>
               <p className="text-xl text-gray-700 mb-6">{product.description}</p>
-              
+
               <div className="flex items-center space-x-4 mb-6">
-                <span className="text-3xl font-bold text-[var(--accent-orange)]">
-                  {product.price} ₽
-                </span>
+                <span className="text-3xl font-bold text-[var(--accent-orange)]">{product.price} ₽</span>
                 <button
                   onClick={async () => {
                     try {
-                      const method = favorite ? 'DELETE' : 'POST'
-                      const res = await fetch('/api/favorites', {
-                        method,
-                        headers: { 'Content-Type': 'application/json' },
-                        credentials: 'include',
-              body: JSON.stringify({ productId: productId })
-                      })
-                      if (!res.ok) throw new Error('Ошибка избранного')
+                      let res
+                      if (favorite) {
+                        res = await fetch(`/api/favorites?productId=${encodeURIComponent(productId ?? '')}`, { method: 'DELETE', credentials: 'include' })
+                      } else {
+                        res = await fetch('/api/favorites', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ productId }) })
+                      }
+                      if (!res.ok) throw new Error('Ошибка')
                       setFavorite(!favorite)
                     } catch (err) {
                       console.error(err)
                       alert('Не удалось обновить избранное')
                     }
                   }}
-                  className={`p-3 rounded-full border-2 ${
+                  className={`w-12 h-12 p-0 rounded-full border-2 flex items-center justify-center ${
                     favorite 
                       ? 'border-[var(--accent-orange)] text-[var(--accent-orange)]' 
                       : 'border-gray-300 text-gray-400 hover:border-[var(--accent-orange)] hover:text-[var(--accent-orange)]'
                   }`}
                 >
-                  ♥
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="inline-block align-middle"> <path d="M12 21s-7.5-4.5-9.6-7.1C.6 11.6 3 7 7 7c2.1 0 3.4 1.3 4.1 2 .7-.7 2-2 4.1-2 4 0 6.4 4.6 4.6 6.9C19.5 16.5 12 21 12 21z"/></svg>
                 </button>
               </div>
-            </div>
 
-            {/* Пищевая ценность */}
-            <div className="card p-6">
-              <h2 className="text-2xl font-bold text-[var(--dark-green)] mb-4 font-serif">
-                Пищевая ценность
-              </h2>
-              
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-                <div className="text-center p-4 bg-[var(--cream-white)] rounded-lg">
-                  <div className="text-2xl font-bold text-[var(--dark-green)]">{product.calories}</div>
-                  <div className="text-sm text-gray-600">ккал</div>
+              {/* Калораж на порцию и на 100г */}
+              {(product.nutrition || product.calories) && (
+                <div className="mb-6 grid grid-cols-2 gap-4">
+                  <div className="p-4 bg-[var(--cream-white)] rounded-lg">
+                    <div className="text-xl font-bold">{product.nutrition?.calories ?? product.calories} ккал</div>
+                    <div className="text-sm text-gray-600">на порцию</div>
+                  </div>
+                  <div className="p-4 bg-[var(--cream-white)] rounded-lg">
+                    <div className="text-xl font-bold">{
+                      (() => {
+                        const pkg = (product.packageSize as number) || 100
+                        const cal = (product.nutrition?.calories ?? product.calories) || 0
+                        if (pkg > 0) return Math.round((cal / pkg) * 100)
+                        return cal
+                      })()
+                    } ккал</div>
+                    <div className="text-sm text-gray-600">на 100 г</div>
+                  </div>
                 </div>
-                <div className="text-center p-4 bg-[var(--cream-white)] rounded-lg">
-                  <div className="text-2xl font-bold text-[var(--dark-green)]">{product.protein}г</div>
-                  <div className="text-sm text-gray-600">Белки</div>
-                </div>
-                <div className="text-center p-4 bg-[var(--cream-white)] rounded-lg">
-                  <div className="text-2xl font-bold text-[var(--dark-green)]">{product.carbs}г</div>
-                  <div className="text-sm text-gray-600">Углеводы</div>
-                </div>
-                <div className="text-center p-4 bg-[var(--cream-white)] rounded-lg">
-                  <div className="text-2xl font-bold text-[var(--dark-green)]">{product.fat}г</div>
-                  <div className="text-sm text-gray-600">Жиры</div>
-                </div>
+              )}
+
+              {/* Состав */}
+              <div className="mb-6 card p-4">
+                <h3 className="text-lg font-medium mb-2">Состав</h3>
+                <p className="text-[var(--text-color)]/90">{product.ingredients || product.composition || product.description || 'Состав не указан'}</p>
               </div>
 
-              {/* Диетическая информация */}
-              <div className="flex flex-wrap gap-2">
-                {product.nutritionalInfo.glutenFree && (
-                  <span className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">
-                    Без глютена
-                  </span>
-                )}
-                {product.nutritionalInfo.lactoseFree && (
-                  <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
-                    Без лактозы
-                  </span>
-                )}
-                {product.nutritionalInfo.vegan && (
-                  <span className="px-3 py-1 bg-emerald-100 text-emerald-800 text-sm rounded-full">
-                    Веган
-                  </span>
-                )}
-                {product.nutritionalInfo.diabeticFriendly && (
-                  <span className="px-3 py-1 bg-purple-100 text-purple-800 text-sm rounded-full">
-                    Для диабетиков
-                  </span>
-                )}
-                {product.nutritionalInfo.lowGi && (
-                  <span className="px-3 py-1 bg-orange-100 text-orange-800 text-sm rounded-full">
-                    Низкий ГИ
-                  </span>
-                )}
+              {/* Пищевая ценность */}
+              <div className="card p-6">
+                <h2 className="text-2xl font-bold text-[var(--dark-green)] mb-4 font-serif">Пищевая ценность</h2>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+                  <div className="text-center p-4 bg-[var(--cream-white)] rounded-lg">
+                    <div className="text-2xl font-bold text-[var(--dark-green)]">{product.nutrition?.calories ?? product.calories}</div>
+                    <div className="text-sm text-gray-600">ккал</div>
+                  </div>
+                  <div className="text-center p-4 bg-[var(--cream-white)] rounded-lg">
+                    <div className="text-2xl font-bold text-[var(--dark-green)]">{product.nutrition?.protein ?? product.protein}г</div>
+                    <div className="text-sm text-gray-600">Белки</div>
+                  </div>
+                  <div className="text-center p-4 bg-[var(--cream-white)] rounded-lg">
+                    <div className="text-2xl font-bold text-[var(--dark-green)]">{product.nutrition?.carbs ?? product.carbs}г</div>
+                    <div className="text-sm text-gray-600">Углеводы</div>
+                  </div>
+                  <div className="text-center p-4 bg-[var(--cream-white)] rounded-lg">
+                    <div className="text-2xl font-bold text-[var(--dark-green)]">{product.nutrition?.fat ?? product.fat}г</div>
+                    <div className="text-sm text-gray-600">Жиры</div>
+                  </div>
+                </div>
+
+                {/* Диетическая информация */}
+                <div className="flex flex-wrap gap-2">
+                  {product.nutritionalInfo?.glutenFree && (
+                    <span className="px-3 py-1 bg-green-100 text-green-800 text-sm rounded-full">Без глютена</span>
+                  )}
+                  {product.nutritionalInfo?.lactoseFree && (
+                    <span className="px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">Без лактозы</span>
+                  )}
+                  {product.nutritionalInfo?.vegan && (
+                    <span className="px-3 py-1 bg-emerald-100 text-emerald-800 text-sm rounded-full">Веган</span>
+                  )}
+                  {product.nutritionalInfo?.diabeticFriendly && (
+                    <span className="px-3 py-1 bg-purple-100 text-purple-800 text-sm rounded-full">Для диабетиков</span>
+                  )}
+                  {product.nutritionalInfo?.lowGi && (
+                    <span className="px-3 py-1 bg-orange-100 text-orange-800 text-sm rounded-full">Низкий ГИ</span>
+                  )}
+                </div>
               </div>
             </div>
 

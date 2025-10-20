@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
+import { Button } from '@/components/ui/button'
 
 interface Store {
   _id: string
@@ -25,6 +26,8 @@ export default function StorePage() {
   const params = useParams()
   const [store, setStore] = useState<Store | null>(null)
   const [loading, setLoading] = useState(true)
+  const [products, setProducts] = useState<any[]>([])
+  const [selected, setSelected] = useState<string[]>([])
 
   useEffect(() => {
     const fetchStore = async () => {
@@ -40,6 +43,14 @@ export default function StorePage() {
     }
 
     fetchStore()
+    const loadProducts = async () => {
+      try {
+        const p = await fetch('/api/products')
+        const jd = await p.json()
+        setProducts(jd.products || jd || [])
+      } catch (e) { console.error(e) }
+    }
+    loadProducts()
   }, [params.id])
 
   if (loading) {
@@ -162,6 +173,32 @@ export default function StorePage() {
             <Link href="/dashboard" className="btn-primary">
               Назад к поиску продуктов
             </Link>
+          </div>
+          
+          {/* Products list with selection */}
+          <div className="mt-8 card p-6">
+            <h3 className="text-lg font-bold mb-3">Выбрать продукты для этого магазина</h3>
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {products.map(prod => (
+                <div key={prod._id} className={`p-3 border rounded ${selected.includes(prod._id) ? 'border-[var(--accent-orange)]' : ''}`}>
+                  <div className="font-medium">{prod.name}</div>
+                  <div className="text-sm text-gray-600">{prod.price} ₽ — {prod.nutrition?.calories ?? prod.calories} ккал</div>
+                  <div className="mt-2 flex gap-2">
+                    <Button onClick={() => setSelected(s => s.includes(prod._id) ? s.filter(x => x !== prod._id) : [...s, prod._id])} variant={selected.includes(prod._id) ? 'secondary' : 'outline'} size="sm">{selected.includes(prod._id) ? 'Убрать' : 'Выбрать'}</Button>
+                    <a href={`/products/${prod._id}`} className="px-3 py-1 border rounded">Подробнее</a>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <div className="mt-4 flex justify-end gap-2">
+              <Button onClick={async () => {
+                try {
+                  const res = await fetch(`/api/stores/${params.id}/favorites`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ productIds: selected }) })
+                  if (!res.ok) throw new Error('fail')
+                  alert('Сохранено в любимые этого магазина')
+                } catch (e) { console.error(e); alert('Ошибка при сохранении') }
+              }} className="px-4 py-2">Сохранить выбор</Button>
+            </div>
           </div>
         </div>
       </div>

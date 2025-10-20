@@ -3,7 +3,8 @@ import { mockStores } from '@/lib/data/stores'
 
 export async function GET(request: NextRequest, context: any) {
   try {
-    const { params } = context
+    // context.params may be a Promise in Next.js; await it before using
+    const params = (context && context.params) ? await context.params : {}
     const store = mockStores.find(s => s._id === params.id)
 
     if (!store) {

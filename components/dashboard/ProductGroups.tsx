@@ -3,6 +3,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { useToasts } from '@/components/ui/toast'
 import { Loader2, PlusCircle, Trash2, Box, Layers } from 'lucide-react'
+import { Button } from '@/components/ui/button'
 
 interface ProductGroup {
   id: string
@@ -180,16 +181,11 @@ export default function ProductGroups() {
 
   return (
     <section className="card p-6">
-      <div className="flex justify-between items-center mb-6">
+        <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-[var(--dark-green)] font-serif">
           Группы продуктов
         </h2>
-        <button
-          onClick={() => setShowCreateForm(true)}
-          className="btn-primary"
-        >
-          + Создать группу
-        </button>
+        <Button onClick={() => setShowCreateForm(true)}>+ Создать группа</Button>
       </div>
 
       {showCreateForm && (
@@ -199,18 +195,11 @@ export default function ProductGroups() {
             placeholder="Название группы..."
             value={newGroupName}
             onChange={(e) => setNewGroupName(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg mb-3 focus:outline-none focus:ring-2 focus:ring-[var(--light-green)]"
+            className="w-full px-3 py-2 border border-gray-300 rounded-lg mb-3 focus:outline-none focus:ring-2 focus:ring-[var(--light-green)] text-[var(--text-color)]/90"
           />
           <div className="flex gap-2">
-            <button onClick={createGroupRemote} className="btn-primary text-sm">
-              Создать
-            </button>
-            <button 
-              onClick={() => setShowCreateForm(false)}
-              className="px-3 py-2 text-gray-600 border border-gray-300 rounded-lg text-sm"
-            >
-              Отмена
-            </button>
+            <Button onClick={createGroupRemote} className="text-sm">Создать</Button>
+            <Button variant="ghost" onClick={() => setShowCreateForm(false)} className="text-sm">Отмена</Button>
           </div>
         </div>
       )}
@@ -226,7 +215,7 @@ export default function ProductGroups() {
             <div key={group.id} className="border border-gray-200 rounded-xl p-4">
               <div className="flex justify-between items-start mb-3">
                 <h3 className="font-bold text-[var(--dark-green)]">{group.name}</h3>
-                <button onClick={() => setManageGroupId(group.id)} className="px-2 py-1 text-sm border rounded text-neutral-700">Управлять</button>
+                <Button onClick={() => setManageGroupId(group.id)} variant="outline" size="sm">Управлять</Button>
               </div>
 
               {group.products.length === 0 ? (
@@ -249,7 +238,7 @@ export default function ProductGroups() {
                           <div className="font-medium">{p.name}</div>
                           <div className="text-xs text-gray-500">{p.calories} ккал · {p.price} ₽</div>
                         </div>
-                        <button onClick={() => removeProductFromGroup(group.id, p.id)} className="text-red-500 text-sm">Удалить</button>
+                        <Button onClick={() => removeProductFromGroup(group.id, p.id)} variant="destructive" size="sm">Удалить</Button>
                       </div>
                     ))}
                   </div>
@@ -265,15 +254,15 @@ export default function ProductGroups() {
             <div className="bg-white rounded-xl p-6 w-full max-w-lg">
             <h3 className="text-lg font-bold mb-4">Управление группой</h3>
             <div className="mb-4">
-              <select value={productToAdd} onChange={e => setProductToAdd(e.target.value)} className="w-full px-3 py-2 border rounded-lg mb-2">
+              <select value={productToAdd} onChange={e => setProductToAdd(e.target.value)} className="w-full px-3 py-2 border rounded-lg mb-2 text-[var(--text-color)]/90">
                 <option value="">Выберите продукт...</option>
                 {availableProducts.map(p => (
                   <option key={p.id} value={p.id}>{p.name}</option>
                 ))}
               </select>
               <div className="flex gap-2 justify-end">
-                <button onClick={() => { if (manageGroupId) addProductToGroup(manageGroupId) }} className="btn-primary">Добавить</button>
-                <button onClick={() => { setManageGroupId(null); setProductToAdd('') }} className="px-3 py-2 border rounded-lg">Закрыть</button>
+                <Button onClick={() => { if (manageGroupId) addProductToGroup(manageGroupId) }} className="">Добавить</Button>
+                <Button variant="ghost" onClick={() => { setManageGroupId(null); setProductToAdd('') }}>Закрыть</Button>
               </div>
             </div>
 

@@ -2,6 +2,9 @@
 
 import React, { useEffect, useState } from "react"
 import CircularGallery from '@/components/CircularGallery'
+import ProductCarousel from '@/components/ProductCarousel'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 
 interface ProductShort {
   _id: string
@@ -108,12 +111,14 @@ export default function RecommendationSection({ products, favorites, onToggleFav
       if (!res.ok) throw new Error("Не удалось создать группу")
       const created = await res.json()
       // immediately add product to created group
-      await handleAddToGroup(created._id, productId)
-      // notify others
-      try { window.dispatchEvent(new Event('groups:updated')) } catch (e) {}
+      try {
+        await handleAddToGroup(created._id, productId)
+      } catch (e) {
+        console.warn('Failed to add to newly created group', e)
+      }
     } catch (err) {
       console.error(err)
-      alert("Ошибка при создании группы")
+      alert("Не удалось создать группу")
     } finally {
       setCreating(false)
       setNewGroupName("")
@@ -121,29 +126,36 @@ export default function RecommendationSection({ products, favorites, onToggleFav
   }
 
   async function toggleFavoriteRemote(productId: string) {
-    // guess: if in favorites -> DELETE, else POST
     const isFav = favorites.includes(productId)
     setActionInProgress(true)
     try {
-      const res = await fetch(`/api/favorites`, {
-        method: isFav ? "DELETE" : "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({ productId })
-      })
-      if (!res.ok) throw new Error("Ошибка избранного")
-      // notify parent to update UI
+      let res
+      if (isFav) {
+        // server expects productId in query for DELETE
+        res = await fetch(`/api/favorites?productId=${encodeURIComponent(productId)}`, {
+          method: 'DELETE',
+          credentials: 'include'
+        })
+      } else {
+        res = await fetch(`/api/favorites`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ productId })
+        })
+      }
+      if (!res.ok) throw new Error('Ошибка избранного')
       onToggleFavorite(productId)
     } catch (err) {
       console.error(err)
-      alert("Не удалось обновить избранное")
+      alert('Не удалось обновить избранное')
     } finally {
       setActionInProgress(false)
     }
   }
 
   return (
-    <section className="card p-6 mb-8">
+    <section className="card p-6 my-8">
       <h2 className="text-2xl font-bold text-[var(--dark-green)] mb-6 font-serif">Рекомендуем для вас</h2>
       {/* <div className="w-full h-[50vh] mb-6"> */}
         {/* Circular gallery visual */}
@@ -153,26 +165,8 @@ export default function RecommendationSection({ products, favorites, onToggleFav
         )} */}
       {/* </div> */}
 
-      {/* Below the gallery: actionable horizontal product list */}
-      <div className="flex gap-4 overflow-x-auto py-2">
-        {products.map(p => (
-          <div key={p._id} className="min-w-[220px] border border-gray-200 rounded-xl p-3 flex-shrink-0">
-            <div className="mb-2 bg-gray-100 rounded overflow-hidden h-28">
-              <img src={p.image} alt={p.name} className="w-full h-full object-cover" />
-            </div>
-            <div className="font-medium text-[var(--dark-green)] mb-1">{p.name}</div>
-            <div className="flex items-center justify-between mb-2">
-              <div className="font-bold text-[var(--accent-orange)]">{p.price} ₽</div>
-              <div className="text-sm text-gray-600">{p.calories} ккал</div>
-            </div>
-            <div className="flex items-center gap-2">
-              <button onClick={() => toggleFavoriteRemote(p._id)} disabled={actionInProgress} className={`px-2 py-1 rounded ${favorites.includes(p._id) ? 'text-[var(--accent-orange)]' : 'text-gray-400'}`}>♥</button>
-              <button onClick={() => setModalOpenFor(p._id)} className="px-2 py-1 border rounded text-sm">В группу</button>
-              <a href={`/stores/${p._id}`} className="px-2 py-1 border rounded text-sm">Магазин</a>
-            </div>
-          </div>
-        ))}
-      </div>
+      {/* Below the gallery: actionable horizontal product carousel */}
+      <ProductCarousel products={products} favorites={favorites} onToggleFavorite={toggleFavoriteRemote} />
 
       {/* Modal for groups */}
       {modalOpenFor && (
@@ -184,21 +178,21 @@ export default function RecommendationSection({ products, favorites, onToggleFav
               <div>Загрузка групп...</div>
             ) : (
               <div className="space-y-3 mb-4">
-                {groups.length === 0 && <div className="text-sm text-gray-500">У вас пока нет групп</div>}
+                {groups.length === 0 && <div className="text-sm text-[var(--text-color)]/70">У вас пока нет групп</div>}
                 {groups.map(g => {
                   const inGroup = !!g.products?.includes(modalOpenFor as string)
                   return (
                     <div key={g._id} className="flex justify-between items-center border p-2 rounded">
                       <div>
                         <div className="font-medium">{g.name}</div>
-                        <div className="text-xs text-gray-500">{(g.products || []).length} продуктов</div>
+                        <div className="text-xs text-[var(--text-color)]/70">{(g.products || []).length} продуктов</div>
                       </div>
                       {inGroup ? (
                         <div className="flex gap-2">
-                          <button disabled={actionInProgress} onClick={() => handleRemoveFromGroup(g._id, modalOpenFor as string)} className="px-2 py-1 bg-red-500 text-white rounded text-sm">Удалить</button>
+                          <Button disabled={actionInProgress} onClick={() => handleRemoveFromGroup(g._id, modalOpenFor as string)} variant="destructive" size="sm">Удалить</Button>
                         </div>
                       ) : (
-                        <button disabled={actionInProgress} onClick={() => handleAddToGroup(g._id, modalOpenFor as string)} className="px-2 py-1 bg-[var(--accent-orange)] text-white rounded text-sm">Добавить</button>
+                        <Button disabled={actionInProgress} onClick={() => handleAddToGroup(g._id, modalOpenFor as string)} variant="default" size="sm">Добавить</Button>
                       )}
                     </div>
                   )
@@ -209,13 +203,13 @@ export default function RecommendationSection({ products, favorites, onToggleFav
             <div className="border-t pt-3">
               <label className="block text-sm mb-1">Создать новую группу</label>
               <div className="flex gap-2">
-                <input value={newGroupName} onChange={e => setNewGroupName(e.target.value)} className="flex-1 border rounded p-2" placeholder="Название группы" />
-                <button disabled={creating} onClick={() => handleCreateGroupAndAdd(modalOpenFor)} className="px-3 py-2 bg-green-600 text-white rounded">Создать и добавить</button>
+                <Input value={newGroupName} onChange={e => setNewGroupName(e.target.value)} className="flex-1" placeholder="Название группы" />
+                <Button disabled={creating} onClick={() => handleCreateGroupAndAdd(modalOpenFor)} variant="default" className="bg-green-600 hover:bg-green-500">Создать и добавить</Button>
               </div>
             </div>
 
             <div className="mt-4 text-right">
-              <button onClick={() => setModalOpenFor(null)} className="px-3 py-2 border rounded">Закрыть</button>
+              <Button onClick={() => setModalOpenFor(null)} variant="ghost">Закрыть</Button>
             </div>
           </div>
         </div>

@@ -6,12 +6,13 @@
     --light-green: #8bc554;
     --dark-green: #003324;
     --accent-orange: #f76711;
-    --text-color: #222222; /* slightly softer than pure black */
+  --text-color: #333333; /* softer dark color (less contrast than pure black) */
     --cream-white: #f5ebe2;
   }
 
   html {
     font-family: var(--font-inter);
+    font-size: 16px; /* чуть больше базовый размер шрифта */
   }
 
   body {
@@ -35,7 +36,7 @@
   }
 
   .card {
-    @apply bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden transition-transform transform hover:scale-[1.01] duration-150;
+    @apply bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden transition-shadow duration-150;
   }
 
   .jungle-bg {
