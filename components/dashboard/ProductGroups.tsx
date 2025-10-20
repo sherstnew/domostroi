@@ -183,9 +183,9 @@ export default function ProductGroups() {
     <section className="card p-6">
         <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-bold text-[var(--dark-green)] font-serif">
-          Группы продуктов
+          Группы
         </h2>
-        <Button onClick={() => setShowCreateForm(true)}>+ Создать группа</Button>
+        <Button onClick={() => setShowCreateForm(true)}>+ Создать группу</Button>
       </div>
 
       {showCreateForm && (
@@ -215,7 +215,7 @@ export default function ProductGroups() {
             <div key={group.id} className="border border-gray-200 rounded-xl p-4">
               <div className="flex justify-between items-start mb-3">
                 <h3 className="font-bold text-[var(--dark-green)]">{group.name}</h3>
-                <Button onClick={() => setManageGroupId(group.id)} variant="outline" size="sm">Управлять</Button>
+                <Button onClick={() => setManageGroupId(group.id)} variant="outline" size="sm">Открыть</Button>
               </div>
 
               {group.products.length === 0 ? (

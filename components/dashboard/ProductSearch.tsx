@@ -177,15 +177,15 @@ export default function ProductSearch({ onSearchResults, products = [] }: Produc
       
       <form onSubmit={handleSearch} className="space-y-4">
         {/* Поисковая строка */}
-        <div className="flex gap-4">
+        <div className="flex gap-4 flex-wrap w-full lg:w-auto">
           <Input
             type="text"
             placeholder="Найти продукты..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="flex-1 bg-white/60"
+            className="lg:flex-1 bg-white/60 w-full lg:w-auto"
           />
-          <Button type="submit" variant="default" className="bg-[var(--light-green)]">Найти</Button>
+          <Button type="submit" variant="default" className="bg-[var(--light-green)] text-white">Найти</Button>
           <Button type="button" variant="outline" onClick={() => setFiltersOpen(o => !o)}>
             {filtersOpen ? 'Скрыть фильтры' : 'Фильтры'}
           </Button>

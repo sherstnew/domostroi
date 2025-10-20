@@ -178,14 +178,14 @@ export default function StorePage() {
           {/* Products list with selection */}
           <div className="mt-8 card p-6">
             <h3 className="text-lg font-bold mb-3">Выбрать продукты для этого магазина</h3>
-            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+            <div className="flex gap-3 flex-wrap">
               {products.map(prod => (
-                <div key={prod._id} className={`p-3 border rounded ${selected.includes(prod._id) ? 'border-[var(--accent-orange)]' : ''}`}>
+                <div key={prod._id} className={`w-full lg:w-auto p-3 border rounded ${selected.includes(prod._id) ? 'border-[var(--accent-orange)]' : ''}`}>
                   <div className="font-medium">{prod.name}</div>
                   <div className="text-sm text-gray-600">{prod.price} ₽ — {prod.nutrition?.calories ?? prod.calories} ккал</div>
                   <div className="mt-2 flex gap-2">
                     <Button onClick={() => setSelected(s => s.includes(prod._id) ? s.filter(x => x !== prod._id) : [...s, prod._id])} variant={selected.includes(prod._id) ? 'secondary' : 'outline'} size="sm">{selected.includes(prod._id) ? 'Убрать' : 'Выбрать'}</Button>
-                    <a href={`/products/${prod._id}`} className="px-3 py-1 border rounded">Подробнее</a>
+                    <Link href={`/products/${prod._id}`} className="px-3 py-1 border rounded">Подробнее</Link>
                   </div>
                 </div>
               ))}

@@ -10,6 +10,7 @@ import ProductGroups from "@/components/dashboard/ProductGroups";
 import { mockProducts } from "../api/products/route";
 import DynamicGoals from "@/components/onboarding/DynamicGoals";
 import { Heart } from 'lucide-react';
+import Link from 'next/link';
 
 export default function Dashboard() {
   const [favorites, setFavorites] = useState<string[]>([]);
@@ -221,12 +222,12 @@ export default function Dashboard() {
                         Добавить в группу
                       </Button>
                     </div>
-                    <a
+                    <Link
                       href={`/products/${product._id}`}
                       className="btn-primary text-sm px-4 py-2"
                     >
                       Подробнее
-                    </a>
+                    </Link>
                   </div>
                 </div>
               ))
