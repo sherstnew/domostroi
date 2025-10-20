@@ -1,44 +1,142 @@
 "use client"
 
 import { useState } from 'react'
-import CategorySelector from './CategorySelector'
 import { Button } from '@/components/ui/button'
+import { useToasts } from '@/components/ui/toast'
 
-const LIFESTYLE = [
-  'Веган',
-  'Вегетарианец',
-  'Кето / Низкоуглеводное',
-  'Без глютена',
-  'Ем без сахара',
-  'Аллергия'
+const LIFESTYLES = [
+  'диабет 1 типа',
+  'диабет 2 типа',
+  'веганство',
+  'вегетарианство',
+  'безглютеновое питание',
+  'безлактозное питание',
+  'натуральный состав',
+  'без сахара'
 ]
 
-export default function PreferencesForm({ initial = {}, onNext }: any) {
-  const [selected, setSelected] = useState<string[]>(initial.lifestyle || [])
-  const [allergies, setAllergies] = useState<string[]>(initial.allergies || [])
+const FORBIDDEN = [
+  'цитрусовые',
+  'молочка',
+  'хлеб',
+  'малина',
+  'яблоки'
+]
 
-  const toggle = (opt: string) => {
-    if (opt === 'Аллергия') {
-      const a = prompt('Укажите аллерген, например: арахис')
-      if (a) setAllergies((s) => Array.from(new Set([...s, a])))
-      return
+type MacroPref = 'more' | 'less' | 'normal'
+
+export default function PreferencesForm({ initial = {}, onSave, showActions = true }: any) {
+  const [lifestyle, setLifestyle] = useState<string[]>(initial.lifestyle || [])
+  const [forbidden, setForbidden] = useState<string[]>(initial.forbidden || [])
+  const [macros, setMacros] = useState<{ protein: MacroPref; fat: MacroPref; carbs: MacroPref }>(() => ({
+    protein: initial.macros?.protein || 'normal',
+    fat: initial.macros?.fat || 'normal',
+    carbs: initial.macros?.carbs || 'normal'
+  }))
+  const [saving, setSaving] = useState(false)
+  const toasts = useToasts()
+
+  const toggleLifestyle = (v: string) => setLifestyle(s => s.includes(v) ? s.filter(x => x !== v) : [...s, v])
+  const toggleForbidden = (v: string) => setForbidden(s => s.includes(v) ? s.filter(x => x !== v) : [...s, v])
+  const setMacro = (key: 'protein'|'fat'|'carbs', val: MacroPref) => setMacros(m => ({ ...m, [key]: val }))
+
+  const submit = () => {
+    // client-side submit will instead persist to server and notify parent with updated preferences
+    savePreferences()
+  }
+
+  const savePreferences = async () => {
+    setSaving(true)
+    try {
+      const payload = { lifestyle, macros, forbidden }
+      // try to get existing preferences to merge
+      let existing: any = {}
+      try {
+        const r = await fetch('/api/user-preferences', { credentials: 'include' })
+        if (r.ok) {
+          const d = await r.json()
+          existing = d.preferences || {}
+        }
+      } catch (e) {
+        // ignore, we'll save payload as-is
+      }
+
+      const merged = { ...existing, ...payload }
+      const res = await fetch('/api/user-preferences', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify(merged) })
+      if (!res.ok) throw new Error('Failed saving preferences')
+      // server returns { message, preferences }
+      const data = await res.json()
+      const updated = data.preferences || merged
+  onSave?.(updated)
+  try { toasts?.add?.('Предпочтения сохранены', 'success') } catch (e) {}
+    } catch (e) {
+  console.error('Preferences save failed', e)
+  try { toasts?.add?.('Ошибка при сохранении предпочтений', 'error') } catch (e) {}
+    } finally {
+      setSaving(false)
     }
-    setSelected((s) => (s.includes(opt) ? s.filter(x => x !== opt) : [...s, opt]))
   }
 
   return (
-        <div>
-          <div className="grid grid-cols-2 gap-3">
-            {["Мясо","Овощи","Фрукты","Молоко","Хлеб","Заморозка"].map(x => (
-              <div key={x} className={`p-3 border rounded cursor-pointer text-[var(--text-color)]/90 ${selected.includes(x) ? 'bg-[var(--light-green)] text-white' : ''}`} onClick={() => toggle(x)}>
-                {x}
-              </div>
-            ))}
+    <div>
+      <div className="mb-6">
+        <h3 className="text-lg font-medium mb-2">Образ жизни</h3>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {LIFESTYLES.map(l => (
+            <button key={l} onClick={() => toggleLifestyle(l)} className={`p-3 rounded-lg border transition ${lifestyle.includes(l) ? 'bg-[var(--light-green)] text-white border-[var(--light-green)]' : 'bg-white text-[var(--text-color)]/90'}`}>
+              {l}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="mb-6">
+        <h3 className="text-lg font-medium mb-2">Акцент на БЖУ</h3>
+        <p className="text-sm text-gray-600 mb-3">Выберите для каждого — больше, меньше или нормально</p>
+        <div className="flex flex-wrap gap-3">
+          <div>
+            <div className="text-sm mb-2">Белки</div>
+            <div className="flex gap-2">
+              <Button size="sm" variant={macros.protein === 'more' ? 'outline' : 'default'} onClick={() => setMacro('protein','more')}>Больше</Button>
+              <Button size="sm" variant={macros.protein === 'normal' ? 'outline' : 'default'} onClick={() => setMacro('protein','normal')}>Нормально</Button>
+              <Button size="sm" variant={macros.protein === 'less' ? 'outline' : 'default'} onClick={() => setMacro('protein','less')}>Меньше</Button>
+            </div>
           </div>
-  
-          <div className="flex justify-end mt-4">
-            <Button onClick={() => onNext?.({ selected })} variant="default">Далее</Button>
+
+          <div>
+            <div className="text-sm mb-2">Жиры</div>
+            <div className="flex gap-2">
+              <Button size="sm" variant={macros.fat === 'more' ? 'outline' : 'default'} onClick={() => setMacro('fat','more')}>Больше</Button>
+              <Button size="sm" variant={macros.fat === 'normal' ? 'outline' : 'default'} onClick={() => setMacro('fat','normal')}>Нормально</Button>
+              <Button size="sm" variant={macros.fat === 'less' ? 'outline' : 'default'} onClick={() => setMacro('fat','less')}>Меньше</Button>
+            </div>
+          </div>
+
+          <div>
+            <div className="text-sm mb-2">Углеводы</div>
+            <div className="flex gap-2">
+              <Button size="sm" variant={macros.carbs === 'more' ? 'outline' : 'default'} onClick={() => setMacro('carbs','more')}>Больше</Button>
+              <Button size="sm" variant={macros.carbs === 'normal' ? 'outline' : 'default'} onClick={() => setMacro('carbs','normal')}>Нормально</Button>
+              <Button size="sm" variant={macros.carbs === 'less' ? 'outline' : 'default'} onClick={() => setMacro('carbs','less')}>Меньше</Button>
+            </div>
           </div>
         </div>
+      </div>
+
+      <div className="mb-6">
+        <h3 className="text-lg font-medium mb-2">Запрет на продукты</h3>
+        <div className="flex gap-2 flex-wrap">
+          {FORBIDDEN.map(f => (
+            <button key={f} onClick={() => toggleForbidden(f)} className={`px-4 py-2 rounded-full border transition ${forbidden.includes(f) ? 'bg-red-500 text-white border-red-500' : 'bg-white text-[var(--text-color)]/90'}`}>
+              {f}
+            </button>
+          ))}
+        </div>
+      </div>
+        <div className="flex justify-end gap-2">
+          <Button variant="ghost" onClick={() => onSave?.(null)}>Отмена</Button>
+          <Button onClick={submit}>Сохранить</Button>
+        </div>
+    </div>
   )
 }

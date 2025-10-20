@@ -1,8 +1,23 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect } from 'react'
+import { useRouter } from 'next/navigation'
+import { useAuth } from '@/context/AuthContext'
 
 export default function Home() {
+  const { user, isLoading } = useAuth()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (!isLoading && user) {
+      router.push('/dashboard')
+    }
+  }, [user, isLoading, router])
+
+  // if user will be redirected, render a minimal placeholder
+  if (user) return <div className="min-h-screen flex items-center justify-center">Перенаправление...</div>
+
   return (
     <div className="min-h-screen jungle-bg leaf-pattern">
       {/* Hero Section */}

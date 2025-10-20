@@ -10,7 +10,7 @@ import {
   SheetTrigger,
   SheetTitle 
 } from '@/components/ui/sheet'
-import { Menu, X } from 'lucide-react'
+import { Menu, X, Heart } from 'lucide-react'
 import { useState } from 'react'
 
 export default function Header() {
@@ -31,6 +31,9 @@ export default function Header() {
     { href: '/profile', label: 'Профиль' },
   ]
 
+  // добавим ссылку на избранное отдельно (иконка)
+  const favLink = { href: '/favorites', label: 'Избранное' }
+
   return (
     <header className="bg-white shadow-sm border-b border-gray-100 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -43,7 +46,7 @@ export default function Header() {
           {user && (
             <>
               {/* Desktop Navigation */}
-              <nav className="hidden md:flex space-x-8 mx-8">
+              <nav className="hidden md:flex items-center space-x-6 mx-8">
                 {navigation.map((item) => (
                   <Link
                     key={item.href}
@@ -57,6 +60,10 @@ export default function Header() {
                     {item.label}
                   </Link>
                 ))}
+                <Link href={favLink.href} className={`text-gray-600 hover:text-[var(--light-green)]`}>
+                  <Heart className="h-5 w-5" />
+                  <span className="sr-only">Избранное</span>
+                </Link>
               </nav>
 
               {/* Mobile Navigation */}
@@ -95,6 +102,12 @@ export default function Header() {
                             {item.label}
                           </Link>
                         ))}
+                        <Link href={favLink.href} onClick={() => setOpen(false)} className="block py-3 px-4 rounded-lg font-medium text-gray-700 hover:bg-gray-100 hover:text-[var(--light-green)]">
+                          <div className="flex items-center gap-3">
+                            <Heart className="h-5 w-5" />
+                            <span>Избранное</span>
+                          </div>
+                        </Link>
                       </nav>
 
                       {/* Logout Button */}

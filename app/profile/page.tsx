@@ -1,69 +1,98 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from 'react'
-import { Input } from '@/components/ui/input'
-import { Button } from '@/components/ui/button'
-import DynamicGoals from '@/components/onboarding/DynamicGoals'
-import CategorySelector from '@/components/onboarding/CategorySelector'
-import { useRouter } from 'next/navigation'
+import { useEffect, useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import PreferencesForm from "@/components/onboarding/PreferencesForm";
+import { useRouter } from "next/navigation";
+import { useAuth } from "@/context/AuthContext";
+import { useToasts } from "@/components/ui/toast";
 
 export default function ProfilePage() {
-  const [prefs, setPrefs] = useState<any>({})
-  const [user, setUser] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
-  const [newAllergy, setNewAllergy] = useState('')
-  const router = useRouter()
+  const [prefs, setPrefs] = useState<any>({});
+  const [user, setUser] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
+  const [newAllergy, setNewAllergy] = useState("");
+  const router = useRouter();
+  const { updateUser } = useAuth();
+  const toasts = useToasts();
 
   useEffect(() => {
     const load = async () => {
       try {
         const [prefsRes, meRes] = await Promise.all([
-          fetch('/api/user-preferences'),
-          fetch('/api/auth/me', { credentials: 'include' })
-        ])
+          fetch("/api/user-preferences"),
+          fetch("/api/auth/me", { credentials: "include" }),
+        ]);
         if (prefsRes.ok) {
-          const data = await prefsRes.json()
-          setPrefs(data.preferences || {})
+          const data = await prefsRes.json();
+          setPrefs(data.preferences || {});
         }
         if (meRes.ok) {
-          const me = await meRes.json()
-          setUser(me.user)
+          const me = await meRes.json();
+          setUser(me.user);
           // merge some profile fields
-          setPrefs((p: any) => ({ ...p, ...(me.user?.profile || {}), email: me.user?.email, name: me.user?.profile?.fullName }))
+          // Prefer the actual user.name or profile.fullName
+          const nameFromUser =
+            me.user?.name || me.user?.profile?.fullName || "";
+          setPrefs((p: any) => ({
+            ...p,
+            ...(me.user?.profile || {}),
+            email: me.user?.email,
+            name: p.name || nameFromUser,
+          }));
         }
       } catch (e) {
-        console.warn(e)
+        console.warn(e);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
-    load()
-  }, [])
+    };
+    load();
+  }, []);
 
   const save = async () => {
     try {
       // save preferences
-      await fetch('/api/user-preferences', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(prefs) })
+      await fetch("/api/user-preferences", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(prefs),
+      });
       // try to save basic user fields (name, email, weeklyBudget)
       try {
-        const payload: any = {}
-        if (prefs.name) payload.fullName = prefs.name
-        if (prefs.email) payload.email = prefs.email
-        if (typeof prefs.weeklyBudget !== 'undefined') payload.weeklyBudget = prefs.weeklyBudget
+        const payload: any = {};
+        if (prefs.name) payload.fullName = prefs.name;
+        if (prefs.email) payload.email = prefs.email;
+        if (typeof prefs.weeklyBudget !== "undefined")
+          payload.weeklyBudget = prefs.weeklyBudget;
         if (Object.keys(payload).length > 0) {
-          const res2 = await fetch('/api/auth/me', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify(payload) })
-          if (!res2.ok) console.warn('Failed to save /api/auth/me')
+          const res2 = await fetch("/api/auth/me", {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            body: JSON.stringify(payload),
+          });
+          if (res2.ok) {
+            try {
+              const data = await res2.json();
+              if (data?.user) updateUser(data.user);
+            } catch (e) {}
+          } else {
+            console.warn("Failed to save /api/auth/me");
+          }
         }
       } catch (e) {
-        console.warn('Failed to save user profile', e)
+        console.warn("Failed to save user profile", e);
       }
-      router.push('/dashboard')
+      router.push("/dashboard");
     } catch (e) {
-      alert('Ошибка при сохранении')
+      toasts?.add?.('Ошибка при сохранении', 'error');
     }
-  }
+  };
 
-  if (loading) return <div className="p-8">Загрузка...</div>
+  if (loading) return <div className="p-8">Загрузка...</div>;
 
   return (
     <div className="min-h-screen jungle-bg leaf-pattern">
@@ -71,51 +100,55 @@ export default function ProfilePage() {
         <h1 className="text-2xl font-bold mb-4">Профиль и предпочтения</h1>
         <div className="mb-4 grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm text-[var(--text-color)]/80">Имя</label>
-            <Input value={prefs.name || prefs.fullName || ''} onChange={e => setPrefs((p:any) => ({ ...p, name: e.target.value }))} className="w-full" />
+            <label className="block text-sm text-[var(--text-color)]/80">
+              Имя
+            </label>
+            <Input
+              value={prefs.name || prefs.fullName || ""}
+              onChange={(e) =>
+                setPrefs((p: any) => ({ ...p, name: e.target.value }))
+              }
+              className="w-full"
+            />
           </div>
           <div>
-            <label className="block text-sm text-[var(--text-color)]/80">Email</label>
-            <Input value={prefs.email || ''} onChange={e => setPrefs((p:any) => ({ ...p, email: e.target.value }))} className="w-full" />
+            <label className="block text-sm text-[var(--text-color)]/80">
+              Email
+            </label>
+            <Input
+              value={prefs.email || ""}
+              onChange={(e) =>
+                setPrefs((p: any) => ({ ...p, email: e.target.value }))
+              }
+              className="w-full"
+            />
           </div>
+        </div>
+        <div className="flex gap-2 w-full justify-end mb-5">
+          <Button
+            variant="ghost"
+            onClick={() => router.push("/dashboard")}
+            className="px-4 py-2"
+          >
+            Отмена
+          </Button>
+          <Button onClick={save} className="px-4 py-2">
+            Сохранить
+          </Button>
         </div>
 
         <div className="mb-6">
-          <h3 className="text-lg font-medium mb-2">Личные предпочтения</h3>
-          <p className="text-sm text-gray-600 mb-2">Выберите те же опции, что и при онбординге</p>
-          <CategorySelector options={["Мясо","Овощи","Фрукты","Молоко","Хлеб","Заморозка"]} selectedOptions={prefs.lifestyle || []} onOptionToggle={(opt:string) => setPrefs((p:any) => ({ ...p, lifestyle: (p.lifestyle||[]).includes(opt) ? p.lifestyle.filter((x:string)=>x!==opt) : [...(p.lifestyle||[]), opt] }))} />
-        </div>
-
-        <div className="mb-4">
-          <h3 className="text-lg font-medium mb-2">Аллергии</h3>
-          <div className="flex gap-2 mb-2">
-            <Input value={newAllergy} onChange={e => setNewAllergy(e.target.value)} placeholder="Добавить аллерген" id="new-allergy" />
-            <Button onClick={() => {
-              const v = (newAllergy || '').trim()
-              if (!v) return
-              setPrefs((p:any) => ({ ...p, allergies: Array.from(new Set([...(p.allergies||[]), v])) }))
-              setNewAllergy('')
-            }}>Добавить</Button>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            {(prefs.allergies || []).map((a:string) => (
-              <span key={a} className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-sm flex items-center gap-2">
-                {a}
-                <button onClick={() => setPrefs((p:any) => ({ ...p, allergies: (p.allergies||[]).filter((x:string)=>x!==a) }))} className="text-red-500">✕</button>
-              </span>
-            ))}
-          </div>
-        </div>
-
-        <div className="mb-6">
-          <h3 className="text-lg font-medium mb-2">Цели и бюджет</h3>
-          <DynamicGoals initial={prefs.goals || {}} onNext={(g:any) => setPrefs((p:any) => ({ ...p, goals: g }))} onBack={() => {}} />
-        </div>
-        <div className="flex gap-2">
-          <Button onClick={save} className="px-4 py-2">Сохранить</Button>
-          <Button variant="ghost" onClick={() => router.push('/dashboard')} className="px-4 py-2">Отмена</Button>
+          <h3 className="text-lg font-medium mb-2">Предпочтения</h3>
+          <p className="text-sm text-gray-600 mb-2">
+            Отредактируйте образ жизни, БЖУ и запреты на продукты
+          </p>
+          <PreferencesForm
+            initial={prefs}
+            /* showActions defaults to true — render internal buttons */
+            onSave={(p: any) => setPrefs(p || {})}
+          />
         </div>
       </div>
     </div>
-  )
+  );
 }

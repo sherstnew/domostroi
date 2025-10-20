@@ -8,9 +8,9 @@ import ProductSearch from "@/components/dashboard/ProductSearch";
 import RecommendationSection from "@/components/dashboard/RecommendationSection";
 import ProductGroups from "@/components/dashboard/ProductGroups";
 import { mockProducts } from "../api/products/route";
-import DynamicGoals from "@/components/onboarding/DynamicGoals";
 import { Heart } from 'lucide-react';
 import Link from 'next/link';
+import { useToasts } from '@/components/ui/toast'
 
 export default function Dashboard() {
   const [favorites, setFavorites] = useState<string[]>([]);
@@ -22,6 +22,8 @@ export default function Dashboard() {
   const [selectedGroup, setSelectedGroup] = useState("");
   const router = useRouter();
   const { user, isLoading } = useAuth();
+  const toasts = useToasts()
+  const [prefs, setPrefs] = useState<any>({})
 
   // Редирект если пользователь не авторизован
   useEffect(() => {
@@ -50,6 +52,19 @@ export default function Dashboard() {
       }
     };
     loadGroups();
+
+    // load user preferences (goals, etc.)
+    const loadPrefs = async () => {
+      try {
+        const res = await fetch('/api/user-preferences')
+        if (!res.ok) return
+        const data = await res.json()
+        setPrefs(data.preferences || {})
+      } catch (e) {
+        console.warn('Failed to load preferences', e)
+      }
+    }
+    loadPrefs();
 
     if (!isLoading && !user) {
       router.push("/login");
@@ -131,14 +146,64 @@ export default function Dashboard() {
           </p>
         </div>
 
-        {/* Поиск */}
+        {/* Поиск с интегрированными целями */}
         <ProductSearch
           onSearchResults={setSearchResults}
           products={mockProducts}
+          hasDiabetes={prefs?.healthConditions?.includes('diabetes')}
         />
 
-        {/* Dynamic goals are now available inside the search filters */}
+        {/* Секция с текущими целями (только информация) */}
+        {prefs?.goals && (
+          <div className="mt-6 mb-6 bg-white/80 rounded-lg p-4 border">
+            <h3 className="text-lg font-medium text-[var(--dark-green)] mb-3">
+              Ваши текущие цели
+            </h3>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+              {prefs.goals.calories && (
+                <div className="text-center p-3 bg-[var(--light-green)]/10 rounded">
+                  <div className="font-medium text-[var(--dark-green)]">Калории</div>
+                  <div className="text-gray-700">{prefs.goals.calories} ккал</div>
+                </div>
+              )}
+              {prefs.goals.budget && (
+                <div className="text-center p-3 bg-[var(--light-green)]/10 rounded">
+                  <div className="font-medium text-[var(--dark-green)]">Бюджет</div>
+                  <div className="text-gray-700">{prefs.goals.budget} ₽</div>
+                </div>
+              )}
+              {prefs.goals.mode === 'detailed' && prefs.goals.protein && (
+                <div className="text-center p-3 bg-[var(--light-green)]/10 rounded">
+                  <div className="font-medium text-[var(--dark-green)]">Белки</div>
+                  <div className="text-gray-700">{prefs.goals.protein}г</div>
+                </div>
+              )}
+              {prefs.goals.mode === 'detailed' && prefs.goals.carbs && (
+                <div className="text-center p-3 bg-[var(--light-green)]/10 rounded">
+                  <div className="font-medium text-[var(--dark-green)]">Углеводы</div>
+                  <div className="text-gray-700">{prefs.goals.carbs}г</div>
+                </div>
+              )}
+              {prefs.goals.mode === 'detailed' && prefs.goals.fat && (
+                <div className="text-center p-3 bg-[var(--light-green)]/10 rounded">
+                  <div className="font-medium text-[var(--dark-green)]">Жиры</div>
+                  <div className="text-gray-700">{prefs.goals.fat}г</div>
+                </div>
+              )}
+              {prefs.goals.mode === 'simple' && (
+                <div className="text-center p-3 bg-[var(--light-green)]/10 rounded">
+                  <div className="font-medium text-[var(--dark-green)]">Режим</div>
+                  <div className="text-gray-700">Простой</div>
+                </div>
+              )}
+            </div>
+            <div className="mt-3 text-xs text-gray-500">
+              💡 Цели автоматически применяются как фильтры при поиске продуктов
+            </div>
+          </div>
+        )}
 
+        {/* Все продукты */}
         <section className="mt-12">
           <h2 className="text-2xl font-bold text-[var(--dark-green)] mb-6 font-serif">
             Все продукты
@@ -234,6 +299,7 @@ export default function Dashboard() {
             )}
           </div>
         </section>
+
         {/* Рекомендации */}
         <RecommendationSection
           products={mockProducts.slice(0, 6)}
@@ -243,6 +309,8 @@ export default function Dashboard() {
 
         {/* Группы продуктов */}
         <ProductGroups />
+
+        {/* Модальное окно добавления в группу */}
         {showAddToGroupFor && (
           <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40">
             <div className="bg-white rounded-xl p-6 w-full max-w-md">
@@ -280,8 +348,6 @@ export default function Dashboard() {
             </div>
           </div>
         )}
-
-        {/* DynamicGoals modal removed: functionality moved into ProductSearch filters */}
       </div>
     </div>
   );
