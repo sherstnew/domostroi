@@ -7,14 +7,15 @@ import { useAuth } from "@/context/AuthContext";
 import ProductSearch from "@/components/dashboard/ProductSearch";
 import RecommendationSection from "@/components/dashboard/RecommendationSection";
 import ProductGroups from "@/components/dashboard/ProductGroups";
-import { mockProducts } from "../api/products/route";
 import { Heart } from 'lucide-react';
+import ProductCard from '@/components/ProductCard'
 import Link from 'next/link';
 import { useToasts } from '@/components/ui/toast'
 
 export default function Dashboard() {
   const [favorites, setFavorites] = useState<string[]>([]);
-  const [searchResults, setSearchResults] = useState(mockProducts);
+  const [allProducts, setAllProducts] = useState<any[]>([])
+  const [searchResults, setSearchResults] = useState<any[]>([]);
   const [groups, setGroups] = useState<any[]>([]);
   const [showAddToGroupFor, setShowAddToGroupFor] = useState<string | null>(
     null
@@ -65,6 +66,19 @@ export default function Dashboard() {
       }
     }
     loadPrefs();
+
+    const loadProducts = async () => {
+      try {
+        const token = localStorage.getItem('token')
+        const res = await fetch('/api/products', { headers: token ? { Authorization: `Bearer ${token}` } : undefined })
+        if (!res.ok) return
+        const jd = await res.json()
+        const prods = jd.products || []
+        setAllProducts(prods)
+        setSearchResults(prods)
+      } catch (e) { console.error('Failed to load products', e) }
+    }
+    loadProducts()
 
     if (!isLoading && !user) {
       router.push("/login");
@@ -149,7 +163,7 @@ export default function Dashboard() {
         {/* Поиск с интегрированными целями */}
         <ProductSearch
           onSearchResults={setSearchResults}
-          products={mockProducts}
+          products={allProducts}
           hasDiabetes={prefs?.healthConditions?.includes('diabetes')}
         />
 
@@ -215,86 +229,12 @@ export default function Dashboard() {
               </div>
             ) : (
               searchResults.map((product) => (
-                <div
-                  key={product._id}
-                  className="card p-6 flex flex-col justify-between"
-                >
-                  <div className="aspect-w-16 aspect-h-9 mb-4 bg-gray-200 rounded-lg overflow-hidden">
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      className="w-full h-48 object-cover"
-                    />
-                  </div>
-                  <h3 className="text-lg font-bold text-[var(--dark-green)] mb-2">
-                    {product.name}
-                  </h3>
-                  <p className="text-gray-600 text-sm mb-3">
-                    {product.description}
-                  </p>
-
-                  <div className="flex flex-wrap gap-1 mb-3">
-                    {product.tags?.map((tag: string) => (
-                      <span
-                        key={tag}
-                        className="px-2 py-1 bg-[var(--light-green)]/20 text-[var(--dark-green)] text-xs rounded-full"
-                      >
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-
-                  <div className="flex justify-between items-center mb-3">
-                    <span className="text-lg font-bold text-[var(--accent-orange)]">
-                      {product.price} ₽
-                    </span>
-                    <div className="text-sm text-gray-600">
-                      {product.calories} ккал
-                    </div>
-                  </div>
-
-                  <div className="flex justify-between text-sm text-gray-600 mb-4">
-                    <span>Б: {product.protein}г</span>
-                    <span>У: {product.carbs}г</span>
-                    <span>Ж: {product.fat}г</span>
-                  </div>
-
-                  <div className="flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                      <Button
-                        onClick={() =>
-                          toggleFavorite?.(product._id || product._id)
-                        }
-                        variant="secondary"
-                        size="sm"
-                        className={`w-12 h-12 flex items-center justify-center rounded-full p-0`}
-                        aria-pressed={favorites.includes(product._id)}
-                      >
-                        <Heart
-                          size={20}
-                          className={
-                            favorites.includes(product._id)
-                              ? "text-[var(--accent-orange)] fill-[var(--accent-orange)]"
-                              : "text-gray-400"
-                          }
-                        />
-                      </Button>
-                      <Button
-                        onClick={() => setShowAddToGroupFor(product._id)}
-                        variant="outline"
-                        size="sm"
-                      >
-                        Добавить в группу
-                      </Button>
-                    </div>
-                    <Link
-                      href={`/products/${product._id}`}
-                      className="btn-primary text-sm px-4 py-2"
-                    >
-                      Подробнее
-                    </Link>
-                  </div>
-                </div>
+                <ProductCard
+                  key={product._id || product.id}
+                  product={product}
+                  isFavorite={favorites.includes(product._id || product.id)}
+                  onToggleFavorite={(id: string) => toggleFavorite(id)}
+                />
               ))
             )}
           </div>
@@ -302,7 +242,7 @@ export default function Dashboard() {
 
         {/* Рекомендации */}
         <RecommendationSection
-          products={mockProducts.slice(0, 6)}
+          products={allProducts.slice(0, 6)}
           favorites={favorites}
           onToggleFavorite={toggleFavorite}
         />

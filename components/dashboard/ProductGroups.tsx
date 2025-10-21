@@ -37,7 +37,8 @@ export default function ProductGroups() {
         // fetch product details for each id
         const prods = await Promise.all(ids.map(async (pid: string) => {
           try {
-            const r = await fetch(`/api/products/${pid}`)
+              const token = localStorage.getItem('token')
+              const r = await fetch(`/api/products/${pid}`, { headers: token ? { Authorization: `Bearer ${token}` } : undefined })
             if (!r.ok) return { id: pid, name: pid, price: 0, calories: 0 }
             const dd = await r.json()
             const pr = dd.product
@@ -73,7 +74,8 @@ export default function ProductGroups() {
     fetchGroups()
     const fetchProducts = async () => {
       try {
-        const res = await fetch('/api/products')
+            const token = localStorage.getItem('token')
+            const res = await fetch('/api/products', { headers: token ? { Authorization: `Bearer ${token}` } : undefined })
         if (!res.ok) return
         const data = await res.json()
         const list = (data.products || []).map((p: any) => ({ id: p._id || p.id, name: p.name, price: p.price || 0, calories: p.calories || 0 }))

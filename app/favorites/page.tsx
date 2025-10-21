@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from 'react'
-import { mockProducts } from '../api/products/route'
+// server-side mockProducts import removed to avoid bundling server code into client
 import { Button } from '@/components/ui/button'
 import ProductCard from '@/components/ProductCard'
 
@@ -18,9 +18,25 @@ export default function FavoritesPage() {
         const data = await res.json()
         const favs: string[] = data.favorites || []
         setFavorites(favs)
-        // map ids to mockProducts
-  const found = favs.map(id => mockProducts.find((p:any) => p._id === id)).filter(Boolean)
-        setProducts(found as any[])
+        // fetch product details for favorite ids from server
+        if (favs.length > 0) {
+          try {
+            const idsQuery = favs.map(encodeURIComponent).join(',')
+            const token = localStorage.getItem('token')
+            const prodRes = await fetch(`/api/products?ids=${idsQuery}`, { headers: token ? { Authorization: `Bearer ${token}` } : undefined })
+            if (prodRes.ok) {
+              const prodData = await prodRes.json()
+              setProducts(prodData.products || [])
+            } else {
+              setProducts([])
+            }
+          } catch (e) {
+            console.warn('Failed to load favorite products', e)
+            setProducts([])
+          }
+        } else {
+          setProducts([])
+        }
       } catch (e) {
         console.warn('Failed to load favorites', e)
       } finally {
@@ -53,13 +69,9 @@ export default function FavoritesPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {products.map((p) => (
-              <div key={p._id || p.id} className="border rounded p-4 bg-white">
+              <div key={p._id || p.id} className="bg-white p-4 rounded">
                 <div className="flex items-center gap-4">
-                  <img src={p.image} alt={p.name} className="w-20 h-20 object-cover rounded" />
-                  <div className="flex-1">
-                    <div className="font-medium">{p.name}</div>
-                    <div className="text-sm text-gray-600">{p.description}</div>
-                  </div>
+                  <ProductCard product={p} />
                   <div className="flex flex-col gap-2">
                     <Button variant="outline" size="sm" onClick={() => remove(p._id || p.id)}>Удалить</Button>
                   </div>

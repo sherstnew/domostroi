@@ -1,8 +1,11 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useToasts } from '@/components/ui/toast'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
+import { Heart } from 'lucide-react'
+import { useAuth } from '@/context/AuthContext'
 
 interface Product {
   _id: string
@@ -49,6 +52,7 @@ export default function ProductPage() {
   const [stores, setStores] = useState<Store[]>([])
   const [loading, setLoading] = useState(true)
   const [favorite, setFavorite] = useState(false)
+  const toasts = useToasts()
 
    const productId = Array.isArray(params.id) ? params.id[0] : params.id
 
@@ -67,6 +71,11 @@ export default function ProductPage() {
     }
     fetchUser()
   }, [params.id])
+
+  const { user } = (() => {
+    try { return useAuth() } catch (e) { return { user: null } as any }
+  })()
+  const inCart = user ? ((user as any)?.cart || []).some((it: any) => String(it.productId) === String(productId)) : false
 
   useEffect(() => {
     const fetchData = async () => {
@@ -172,30 +181,74 @@ export default function ProductPage() {
 
               <div className="flex items-center space-x-4 mb-6">
                 <span className="text-3xl font-bold text-[var(--accent-orange)]">{product.price} ₽</span>
-                <button
-                  onClick={async () => {
-                    try {
-                      let res
-                      if (favorite) {
-                        res = await fetch(`/api/favorites?productId=${encodeURIComponent(productId ?? '')}`, { method: 'DELETE', credentials: 'include' })
-                      } else {
-                        res = await fetch('/api/favorites', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ productId }) })
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={async () => {
+                      try {
+                        let res
+                        if (favorite) {
+                          res = await fetch(`/api/favorites?productId=${encodeURIComponent(productId ?? '')}`, { method: 'DELETE', credentials: 'include' })
+                        } else {
+                          res = await fetch('/api/favorites', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ productId }) })
+                        }
+                        if (!res.ok) throw new Error('Ошибка')
+                        setFavorite(!favorite)
+                      } catch (err) {
+                        console.error(err)
+                        toasts.add('Не удалось обновить избранное', 'error')
                       }
-                      if (!res.ok) throw new Error('Ошибка')
-                      setFavorite(!favorite)
-                    } catch (err) {
-                      console.error(err)
-                      alert('Не удалось обновить избранное')
-                    }
-                  }}
-                  className={`w-12 h-12 p-0 rounded-full border-2 flex items-center justify-center ${
+                    }}
+                    className={`w-12 h-12 p-0 rounded-full border-2 flex items-center justify-center ${
+                      favorite 
+                        ? 'border-[var(--accent-orange)] text-[var(--accent-orange)]' 
+                        : 'border-gray-300 text-gray-400 hover:border-[var(--accent-orange)] hover:text-[var(--accent-orange)]'
+                    }`}
+                >
+                  <Heart className={`size-5 ${
                     favorite 
                       ? 'border-[var(--accent-orange)] text-[var(--accent-orange)]' 
                       : 'border-gray-300 text-gray-400 hover:border-[var(--accent-orange)] hover:text-[var(--accent-orange)]'
-                  }`}
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" className="inline-block align-middle"> <path d="M12 21s-7.5-4.5-9.6-7.1C.6 11.6 3 7 7 7c2.1 0 3.4 1.3 4.1 2 .7-.7 2-2 4.1-2 4 0 6.4 4.6 4.6 6.9C19.5 16.5 12 21 12 21z"/></svg>
+                  }`} />
                 </button>
+
+                  {!inCart ? (
+                    <button
+                      onClick={async () => {
+                        try {
+                          const token = localStorage.getItem('token')
+                          if (!token) { window.location.href = '/login'; return }
+                          const storeId = product.stores?.[0]?.storeId || null
+                          const res = await fetch('/api/cart', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ productId: product._id, storeId, quantity: 1, price: product.price }) })
+                          if (!res.ok) throw new Error('fail')
+                          const jd = await res.json()
+                          try { window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { count: jd.cart?.length ?? null } })) } catch (e) {}
+                          toasts.add('Добавлено в корзину', 'success')
+                        } catch (e) { console.error(e); toasts.add('Ошибка при добавлении в корзину', 'error') }
+                      }}
+                      className="btn-primary px-4 py-2"
+                    >
+                      В корзину
+                    </button>
+                  ) : (
+                    <button
+                      onClick={async () => {
+                        try {
+                          const token = localStorage.getItem('token')
+                          if (!token) { window.location.href = '/login'; return }
+                          const storeId = product.stores?.[0]?.storeId || null
+                          const res = await fetch('/api/cart', { method: 'DELETE', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ productId: product._id, storeId }) })
+                          if (!res.ok) throw new Error('fail')
+                          const jd = await res.json()
+                          try { window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { count: jd.cart?.length ?? null } })) } catch (e) {}
+                          toasts.add('Удалено из корзины', 'success')
+                        } catch (e) { console.error(e); toasts.add('Ошибка при удалении из корзины', 'error') }
+                      }}
+                      className="btn-destructive px-4 py-2"
+                    >
+                      Удалить из корзины
+                    </button>
+                  )}
+                </div>
               </div>
 
               {/* Калораж на порцию и на 100г */}

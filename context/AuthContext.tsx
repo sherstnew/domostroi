@@ -46,6 +46,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
       if (response.ok) {
         const data = await response.json()
+        // data.user may contain selectedStore and cart
         setUser(data.user)
       } else {
         // Токен невалиден - очищаем

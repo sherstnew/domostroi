@@ -1,9 +1,13 @@
-'use client'
+"use client"
 
 import { useState, useEffect } from 'react'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
+import ProductSearch from '@/components/dashboard/ProductSearch'
+import ProductCard from '@/components/ProductCard'
+import { useAuth } from '@/context/AuthContext'
+import { useToasts } from '@/components/ui/toast'
 
 interface Store {
   _id: string
@@ -24,9 +28,13 @@ interface Store {
 
 export default function StorePage() {
   const params = useParams()
+  const { updateUser, user } = useAuth()
+  const toasts = useToasts()
   const [store, setStore] = useState<Store | null>(null)
   const [loading, setLoading] = useState(true)
   const [products, setProducts] = useState<any[]>([])
+  const [allProducts, setAllProducts] = useState<any[]>([])
+  const [searchResults, setSearchResults] = useState<any[]>([])
   const [selected, setSelected] = useState<string[]>([])
 
   useEffect(() => {
@@ -45,9 +53,13 @@ export default function StorePage() {
     fetchStore()
     const loadProducts = async () => {
       try {
-        const p = await fetch('/api/products')
+        const token = localStorage.getItem('token')
+        const p = await fetch(`/api/products?storeId=${params.id}`, { headers: token ? { Authorization: `Bearer ${token}` } : undefined })
         const jd = await p.json()
-        setProducts(jd.products || jd || [])
+        const prods = jd.products || jd || []
+        setProducts(prods)
+        setAllProducts(prods)
+        setSearchResults(prods)
       } catch (e) { console.error(e) }
     }
     loadProducts()
@@ -81,7 +93,7 @@ export default function StorePage() {
 
   return (
     <div className="min-h-screen jungle-bg leaf-pattern">
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-3/5mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Хлебные крошки */}
         <nav className="flex items-center space-x-2 text-sm text-gray-600 mb-8">
           <Link href="/dashboard" className="hover:text-[var(--light-green)]">
@@ -147,12 +159,25 @@ export default function StorePage() {
 
             {/* Карта (заглушка) */}
             <div className="bg-gray-200 rounded-xl flex items-center justify-center min-h-[300px]">
-              <div className="text-center">
+                <div className="text-center">
                 <div className="text-4xl mb-4">🗺️</div>
                 <p className="text-gray-600">Карта магазина</p>
                 <p className="text-sm text-gray-500 mt-2">
                   Здесь будет интерактивная карта с расположением отделов
                 </p>
+                <div className="mt-4">
+                  <button onClick={async () => {
+                    try {
+                      const token = localStorage.getItem('token')
+                      if (!token) { window.location.href = '/login'; return }
+                      const res = await fetch('/api/user/store', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ storeId: params.id, storeName: store?.name || null }) })
+                      if (!res.ok) throw new Error('fail')
+                      const jd = await res.json()
+                      if (jd.user && updateUser) updateUser(jd.user)
+                      toasts.add('Магазин выбран', 'success')
+                    } catch (e) { console.error(e); toasts.add('Ошибка при выборе магазина', 'error') }
+                  }} className="btn-primary px-4 py-2 mt-2">Выбрать магазин</button>
+                </div>
               </div>
             </div>
           </div>
@@ -176,28 +201,30 @@ export default function StorePage() {
           </div>
           
           {/* Products list with selection */}
-          <div className="mt-8 card p-6">
-            <h3 className="text-lg font-bold mb-3">Выбрать продукты для этого магазина</h3>
-            <div className="flex gap-3 flex-wrap">
-              {products.map(prod => (
-                <div key={prod._id} className={`w-full lg:w-auto p-3 border rounded ${selected.includes(prod._id) ? 'border-[var(--accent-orange)]' : ''}`}>
-                  <div className="font-medium">{prod.name}</div>
-                  <div className="text-sm text-gray-600">{prod.price} ₽ — {prod.nutrition?.calories ?? prod.calories} ккал</div>
-                  <div className="mt-2 flex gap-2">
-                    <Button onClick={() => setSelected(s => s.includes(prod._id) ? s.filter(x => x !== prod._id) : [...s, prod._id])} variant={selected.includes(prod._id) ? 'secondary' : 'outline'} size="sm">{selected.includes(prod._id) ? 'Убрать' : 'Выбрать'}</Button>
-                    <Link href={`/products/${prod._id}`} className="px-3 py-1 border rounded">Подробнее</Link>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <div className="mt-4 flex justify-end gap-2">
-              <Button onClick={async () => {
-                try {
-                  const res = await fetch(`/api/stores/${params.id}/favorites`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ productIds: selected }) })
-                  if (!res.ok) throw new Error('fail')
-                  alert('Сохранено в любимые этого магазина')
-                } catch (e) { console.error(e); alert('Ошибка при сохранении') }
-              }} className="px-4 py-2">Сохранить выбор</Button>
+          <div className="mt-8">
+            <ProductSearch onSearchResults={setSearchResults} products={allProducts} hasDiabetes={!!user?.preferences?.healthConditions?.includes('diabetes')} />
+
+            <div className="mt-6 card p-6">
+              <h3 className="text-lg font-bold mb-3">Продукты магазина</h3>
+              <div className="flex flex-wrap gap-6">
+                {searchResults.length === 0 ? (
+                  <div className="col-span-full text-center text-gray-500 py-8">Нет продуктов в соответствии с текущими фильтрами</div>
+                ) : (
+                  searchResults.map((prod: any) => (
+                    <ProductCard key={prod._id || prod.id} product={prod} />
+                  ))
+                )}
+              </div>
+
+              <div className="mt-4 flex justify-end gap-2">
+                <Button onClick={async () => {
+                  try {
+                    const res = await fetch(`/api/stores/${params.id}/favorites`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ productIds: selected }) })
+                    if (!res.ok) throw new Error('fail')
+                    toasts.add('Сохранено в любимые этого магазина', 'success')
+                  } catch (e) { console.error(e); toasts.add('Ошибка при сохранении', 'error') }
+                }} className="px-4 py-2">Сохранить выбор</Button>
+              </div>
             </div>
           </div>
         </div>

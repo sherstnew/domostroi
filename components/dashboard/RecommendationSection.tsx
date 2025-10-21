@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useEffect, useState } from "react"
+import { useToasts } from '@/components/ui/toast'
 import CircularGallery from '@/components/CircularGallery'
 import ProductCarousel from '@/components/ProductCarousel'
 import { Button } from '@/components/ui/button'
@@ -34,6 +35,7 @@ export default function RecommendationSection({ products, favorites, onToggleFav
   const [creating, setCreating] = useState(false)
   const [newGroupName, setNewGroupName] = useState("")
   const [actionInProgress, setActionInProgress] = useState(false)
+  const toasts = useToasts()
 
   async function fetchGroups() {
     setLoadingGroups(true)
@@ -73,7 +75,7 @@ export default function RecommendationSection({ products, favorites, onToggleFav
       try { window.dispatchEvent(new Event('groups:updated')) } catch (e) {}
     } catch (err) {
       console.error(err)
-      alert("Ошибка при добавлении в группу")
+      toasts.add("Ошибка при добавлении в группу", 'error')
     } finally {
       setActionInProgress(false)
     }
@@ -92,7 +94,7 @@ export default function RecommendationSection({ products, favorites, onToggleFav
       setGroups(prev => prev.map(g => g._id === groupId ? { ...g, products: (g.products || []).filter(id => id !== productId) } : g))
     } catch (err) {
       console.error(err)
-      alert("Ошибка при удалении из группы")
+      toasts.add("Ошибка при удалении из группы", 'error')
     } finally {
       setActionInProgress(false)
     }
@@ -118,7 +120,7 @@ export default function RecommendationSection({ products, favorites, onToggleFav
       }
     } catch (err) {
       console.error(err)
-      alert("Не удалось создать группу")
+      toasts.add("Не удалось создать группу", 'error')
     } finally {
       setCreating(false)
       setNewGroupName("")
@@ -148,7 +150,7 @@ export default function RecommendationSection({ products, favorites, onToggleFav
       onToggleFavorite(productId)
     } catch (err) {
       console.error(err)
-      alert('Не удалось обновить избранное')
+      toasts.add('Не удалось обновить избранное', 'error')
     } finally {
       setActionInProgress(false)
     }

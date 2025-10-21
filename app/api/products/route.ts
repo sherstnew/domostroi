@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import clientPromise from '@/lib/mongodb'
 import { Product } from '@/types'
+import { getTokenFromHeaders, verifyToken } from '@/lib/auth'
+import { ObjectId } from 'mongodb'
 
 // Моковые данные продуктов
 export const mockProducts: Product[] = [
@@ -619,64 +621,66 @@ export const mockProducts: Product[] = [
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
-    const search = searchParams.get('search')
-    const category = searchParams.get('category')
-    const maxCalories = searchParams.get('maxCalories')
-    const minProtein = searchParams.get('minProtein')
-    const maxCarbs = searchParams.get('maxCarbs')
-    const maxFat = searchParams.get('maxFat')
-    const maxPrice = searchParams.get('maxPrice')
+    const storeId = searchParams.get('storeId')
+    const top = searchParams.get('top')
+    const ids = searchParams.get('ids')
 
-    let filteredProducts = [...mockProducts]
-
-    // Фильтрация по поисковому запросу
-    if (search) {
-      filteredProducts = filteredProducts.filter(product =>
-        product.name.toLowerCase().includes(search.toLowerCase()) ||
-        product.description.toLowerCase().includes(search.toLowerCase()) ||
-        product.tags.some(tag => tag.toLowerCase().includes(search.toLowerCase()))
-      )
+    let result = [...mockProducts]
+    // If ids param provided, return only those products (comma separated)
+    if (ids) {
+      const idsArr = ids.split(',').map(s => s.trim())
+      result = result.filter(p => idsArr.includes(String(p._id)))
+      return NextResponse.json({ products: result })
+    }
+    if (storeId) {
+      result = result.filter(p => p.stores?.some(s => String(s.storeId) === String(storeId)))
     }
 
-    // Фильтрация по категории
-    if (category) {
-      filteredProducts = filteredProducts.filter(product =>
-        product.category === category
-      )
+    // If user token present, try to filter by user's preferences
+    try {
+      const token = getTokenFromHeaders(request.headers)
+      if (token) {
+        const payload = await verifyToken(token)
+        if (payload?.userId) {
+          const client = await clientPromise
+          const db = client.db()
+          const user = await db.collection('users').findOne({ _id: new ObjectId(payload.userId) })
+          const prefs = user?.preferences
+          if (prefs) {
+            // remove products that match forbidden tags
+            const forbidden: string[] = prefs.forbidden || []
+            if (forbidden.length > 0) {
+              result = result.filter(p => !p.tags?.some(t => forbidden.includes(t)))
+            }
+            // simple dietaryRestrictions filter: if product has nutritionalInfo flags that conflict, exclude
+            const dietary: string[] = prefs.dietaryRestrictions || []
+            if (dietary.length > 0) {
+              result = result.filter(p => {
+                for (const dr of dietary) {
+                  if (dr === 'gluten-free' && p.nutritionalInfo?.glutenFree === false) return false
+                  if (dr === 'lactose-free' && p.nutritionalInfo?.lactoseFree === false) return false
+                  if (dr === 'vegan' && p.nutritionalInfo?.vegan === false) return false
+                }
+                return true
+              })
+            }
+          }
+        }
+      }
+    } catch (e) {
+      // ignore token/verification errors and return unfiltered list
+      console.warn('Product prefs filter skipped:', e)
     }
 
-    // Фильтрация по БЖУ и калориям
-    if (maxCalories) {
-      filteredProducts = filteredProducts.filter(product =>
-        product.calories <= parseInt(maxCalories)
-      )
+    if (top === 'true' && storeId) {
+      // simple top: sort by price asc and take first 6 (example)
+      result = result
+        .filter(p => p.stores?.some(s => String(s.storeId) === String(storeId) && s.available))
+        .sort((a, b) => (a.price || 0) - (b.price || 0))
+        .slice(0, 6)
     }
 
-    if (minProtein) {
-      filteredProducts = filteredProducts.filter(product =>
-        product.protein >= parseInt(minProtein)
-      )
-    }
-
-    if (maxCarbs) {
-      filteredProducts = filteredProducts.filter(product =>
-        product.carbs <= parseInt(maxCarbs)
-      )
-    }
-
-    if (maxFat) {
-      filteredProducts = filteredProducts.filter(product =>
-        product.fat <= parseInt(maxFat)
-      )
-    }
-
-    if (maxPrice) {
-      filteredProducts = filteredProducts.filter(product =>
-        product.price <= parseInt(maxPrice)
-      )
-    }
-
-    return NextResponse.json({ products: filteredProducts })
+    return NextResponse.json({ products: result })
   } catch (error) {
     console.error('Products fetch error:', error)
     return NextResponse.json(
