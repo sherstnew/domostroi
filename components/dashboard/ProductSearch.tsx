@@ -206,13 +206,13 @@ export default function ProductSearch({ onSearchResults, products = [], hasDiabe
       
       <form onSubmit={handleSearch} className="space-y-6">
         {/* Поисковая строка */}
-        <div className="flex gap-4 flex-wrap lg:flex-nowrap">
+        <div className="flex gap-4 flex-wrap">
           <Input
             type="text"
             placeholder="Найти продукты по названию или описанию..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="flex-1 bg-white/80 border-[var(--light-green)]/30 focus:border-[var(--light-green)]"
+            className="w-full lg:flex-1 lg:w-auto bg-white/80 border-[var(--light-green)]/30 focus:border-[var(--light-green)]"
           />
           <div className="flex gap-2 flex-wrap lg:flex-nowrap">
             <Button type="submit" variant="default" className="bg-[var(--light-green)] hover:bg-[var(--light-green)]/90 text-white px-6">

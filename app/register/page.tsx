@@ -79,7 +79,7 @@ export default function Register() {
           <h1 className="text-3xl font-bold text-[var(--dark-green)] mb-2 font-serif">
             Регистрация
           </h1>
-          <p className="text-gray-600">Создайте аккаунт GreenPlate</p>
+          <p className="text-gray-600">Создайте аккаунт</p>
         </div>
 
         {error && (

@@ -17,8 +17,8 @@ const playfair = Playfair_Display({
 })
 
 export const metadata: Metadata = {
-  title: 'GreenPlate - Здоровое питание',
-  description: 'Приложение для здорового питания с персонализированными рекомендациями',
+  title: 'В своей тарелке - Здоровое питание',
+  description: 'Приложение для здорового питания',
 }
 
 export default function RootLayout({

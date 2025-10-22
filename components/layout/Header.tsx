@@ -200,10 +200,63 @@ export default function Header() {
                 <Button variant="ghost" onClick={handleLogout} className="text-gray-600 hover:text-red-600 whitespace-nowrap">Выйти</Button>
               </div>
             ) : (
-              <div className="flex items-center space-x-3">
-                <Link href="/login" className="text-gray-600 hover:text-[var(--light-green)] font-medium text-sm whitespace-nowrap">Вход</Link>
-                <Link href="/register" className="btn-primary text-sm whitespace-nowrap">Регистрация</Link>
-              </div>
+              <>
+                {/* Desktop: show login/register */}
+                <div className="hidden md:flex items-center space-x-3">
+                  <Link href="/login" className="text-gray-600 hover:text-[var(--light-green)] font-medium text-sm whitespace-nowrap">Вход</Link>
+                  <Link href="/register" className="btn-primary text-sm whitespace-nowrap">Регистрация</Link>
+                </div>
+
+                {/* Mobile: put login/register into side menu */}
+                <div className="md:hidden">
+                  <Sheet open={open} onOpenChange={setOpen}>
+                    <SheetTrigger asChild>
+                      <Button variant="ghost" size="icon" className="ml-2 h-10 w-10">
+                        <Menu className="h-5 w-5" />
+                        <span className="sr-only">Открыть меню</span>
+                      </Button>
+                    </SheetTrigger>
+                    <SheetContent side="right" className="w-full sm:w-[400px] bg-white">
+                      <SheetTitle className="sr-only">Меню навигации</SheetTitle>
+                      <div className="flex flex-col h-full">
+                        <div className="p-4 border-b border-gray-200">
+                          <p className="text-sm text-gray-600">Добро пожаловать</p>
+                          <p className="font-medium text-[var(--dark-green)] mt-1">Гость</p>
+                        </div>
+
+                        <nav className="flex-1 p-4 space-y-4">
+                          {navigation.map((item) => (
+                            <Link
+                              key={item.href}
+                              href={item.href}
+                              onClick={() => setOpen(false)}
+                              className={`block py-3 px-4 rounded-lg font-medium transition-colors ${
+                                isActive(item.href)
+                                  ? 'bg-[var(--light-green)]/10 text-[var(--light-green)] border border-[var(--light-green)]/20'
+                                  : 'text-gray-700 hover:bg-gray-100 hover:text-[var(--light-green)]'
+                              }`}
+                            >
+                              {item.label}
+                            </Link>
+                          ))}
+
+                          <Link href={favLink.href} onClick={() => setOpen(false)} className="block py-3 px-4 rounded-lg font-medium text-gray-700 hover:bg-gray-100 hover:text-[var(--light-green)]">
+                            <div className="flex items-center gap-3">
+                              <Heart className="h-5 w-5" />
+                              <span>Избранное</span>
+                            </div>
+                          </Link>
+                        </nav>
+
+                        <div className="p-4 border-t border-gray-200 space-y-2">
+                          <Link href="/login" onClick={() => setOpen(false)} className="block w-full text-center py-3 rounded-lg font-medium text-gray-700 hover:bg-gray-100">Вход</Link>
+                          <Link href="/register" onClick={() => setOpen(false)} className="block w-full text-center py-3 rounded-lg btn-primary">Регистрация</Link>
+                        </div>
+                      </div>
+                    </SheetContent>
+                  </Sheet>
+                </div>
+              </>
             )}
           </div>
         </div>

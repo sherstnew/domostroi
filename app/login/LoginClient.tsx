@@ -65,7 +65,7 @@ export default function LoginClient() {
       <div className="card w-full max-w-md p-8">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-[var(--dark-green)] mb-2 font-serif">
-            Вход в GreenPlate
+            Вход в аккаунт
           </h1>
           <p className="text-gray-600">Войдите в свой аккаунт</p>
         </div>
