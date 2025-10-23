@@ -31,7 +31,8 @@ export default function Dashboard() {
     // load persisted favorites
     const loadFavs = async () => {
       try {
-        const res = await fetch("/api/favorites");
+        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+        const res = await fetch("/api/favorites", { headers: token ? { Authorization: `Bearer ${token}` } : undefined });
         if (!res.ok) return;
         const data = await res.json();
         setFavorites(data.favorites || []);
@@ -44,7 +45,8 @@ export default function Dashboard() {
     // load user groups for add-to-group modal
     const loadGroups = async () => {
       try {
-        const res = await fetch("/api/groups");
+        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+        const res = await fetch("/api/groups", { headers: token ? { Authorization: `Bearer ${token}` } : undefined });
         if (!res.ok) return;
         const data = await res.json();
         setGroups(data.groups || []);
@@ -57,7 +59,8 @@ export default function Dashboard() {
     // load user preferences (goals, etc.)
     const loadPrefs = async () => {
       try {
-        const res = await fetch('/api/user-preferences')
+        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+        const res = await fetch('/api/user-preferences', { headers: token ? { Authorization: `Bearer ${token}` } : undefined })
         if (!res.ok) return
         const data = await res.json()
         setPrefs(data.preferences || {})

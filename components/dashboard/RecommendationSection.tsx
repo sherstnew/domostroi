@@ -40,7 +40,8 @@ export default function RecommendationSection({ products, favorites, onToggleFav
   async function fetchGroups() {
     setLoadingGroups(true)
     try {
-      const res = await fetch("/api/groups", { credentials: "include" })
+  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+  const res = await fetch("/api/groups", { credentials: "include", headers: token ? { Authorization: `Bearer ${token}` } : undefined })
       if (!res.ok) throw new Error("Не удалось получить группы")
       const data = await res.json()
       // Server may return { groups: [...] } or an array
@@ -61,9 +62,10 @@ export default function RecommendationSection({ products, favorites, onToggleFav
   async function handleAddToGroup(groupId: string, productId: string) {
     setActionInProgress(true)
     try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
       const res = await fetch(`/api/groups/${groupId}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         credentials: "include",
         body: JSON.stringify({ action: "add", productId })
       })
@@ -84,9 +86,10 @@ export default function RecommendationSection({ products, favorites, onToggleFav
   async function handleRemoveFromGroup(groupId: string, productId: string) {
     setActionInProgress(true)
     try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
       const res = await fetch(`/api/groups/${groupId}`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         credentials: "include",
         body: JSON.stringify({ action: "remove", productId })
       })
@@ -104,9 +107,10 @@ export default function RecommendationSection({ products, favorites, onToggleFav
     if (!newGroupName.trim()) return
     setCreating(true)
     try {
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
       const res = await fetch(`/api/groups`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         credentials: "include",
         body: JSON.stringify({ name: newGroupName.trim() })
       })
@@ -132,16 +136,18 @@ export default function RecommendationSection({ products, favorites, onToggleFav
     setActionInProgress(true)
     try {
       let res
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
       if (isFav) {
         // server expects productId in query for DELETE
         res = await fetch(`/api/favorites?productId=${encodeURIComponent(productId)}`, {
           method: 'DELETE',
-          credentials: 'include'
+          credentials: 'include',
+          headers: token ? { Authorization: `Bearer ${token}` } : undefined
         })
       } else {
         res = await fetch(`/api/favorites`, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) },
           credentials: 'include',
           body: JSON.stringify({ productId })
         })

@@ -93,7 +93,7 @@ export default function StorePage() {
 
   return (
     <div className="min-h-screen jungle-bg leaf-pattern">
-      <div className="max-w-3/5mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Хлебные крошки */}
         <nav className="flex items-center space-x-2 text-sm text-gray-600 mb-8">
           <Link href="/dashboard" className="hover:text-[var(--light-green)]">
@@ -206,15 +206,15 @@ export default function StorePage() {
 
             <div className="mt-6 card p-6">
               <h3 className="text-lg font-bold mb-3">Продукты магазина</h3>
-              <div className="flex flex-wrap gap-6">
-                {searchResults.length === 0 ? (
-                  <div className="col-span-full text-center text-gray-500 py-8">Нет продуктов в соответствии с текущими фильтрами</div>
-                ) : (
-                  searchResults.map((prod: any) => (
+              {searchResults.length === 0 ? (
+                <div className="col-span-full text-center text-gray-500 py-8">Нет продуктов в соответствии с текущими фильтрами</div>
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                  {searchResults.map((prod: any) => (
                     <ProductCard key={prod._id || prod.id} product={prod} />
-                  ))
-                )}
-              </div>
+                  ))}
+                </div>
+              )}
 
               <div className="mt-4 flex justify-end gap-2">
                 <Button onClick={async () => {

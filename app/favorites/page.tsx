@@ -13,7 +13,8 @@ export default function FavoritesPage() {
   useEffect(() => {
     const load = async () => {
       try {
-        const res = await fetch('/api/favorites')
+  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+  const res = await fetch('/api/favorites', { headers: token ? { Authorization: `Bearer ${token}` } : undefined })
         if (!res.ok) throw new Error('Не авторизован')
         const data = await res.json()
         const favs: string[] = data.favorites || []
@@ -48,7 +49,8 @@ export default function FavoritesPage() {
 
   const remove = async (productId: string) => {
     try {
-      const res = await fetch(`/api/favorites?productId=${encodeURIComponent(productId)}`, { method: 'DELETE' })
+    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+    const res = await fetch(`/api/favorites?productId=${encodeURIComponent(productId)}`, { method: 'DELETE', headers: token ? { Authorization: `Bearer ${token}` } : undefined })
       if (res.ok) {
         setFavorites(prev => prev.filter(id => id !== productId))
         setProducts(prev => prev.filter(p => (p._id || p.id) !== productId))

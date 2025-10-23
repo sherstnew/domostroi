@@ -127,7 +127,8 @@ export default function ProductGroups() {
       let prod = availableProducts.find(p => p.id === productToAdd)
       if (!prod) {
         try {
-          const r = await fetch(`/api/products/${productToAdd}`)
+      const token = localStorage.getItem('token')
+      const r = await fetch(`/api/products/${productToAdd}`, { headers: token ? { Authorization: `Bearer ${token}` } : undefined })
           if (r.ok) {
             const dd = await r.json()
             const p = dd.product

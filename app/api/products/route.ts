@@ -184,7 +184,7 @@ export const mockProducts: Product[] = [
     protein: 5.4,
     carbs: 60,
     fat: 26,
-    image: 'https://upload.wikimedia.org/wikipedia/ru/0/0d/Alpen_Gold_milk_chocolate.jpg  ',
+    image: '/products/choco.webp',
     category: 'Сладости',
     tags: ['шоколад', 'молочный', 'фундук', 'перекус'],
     stores: [
@@ -218,7 +218,7 @@ export const mockProducts: Product[] = [
     protein: 7.9,
     carbs: 58.2,
     fat: 25.8,
-    image: 'https://upload.wikimedia.org/wikipedia/ru/1/1c/Snickers_wrapped.png  ',
+    image: '/products/snickers.webp',
     category: 'Сладости',
     tags: ['батончик', 'шоколад', 'арахис', 'перекус'],
     stores: [
@@ -252,7 +252,7 @@ export const mockProducts: Product[] = [
     protein: 11,
     carbs: 60,
     fat: 8,
-    image: 'https://upload.wikimedia.org/wikipedia/commons/thumb/5/5c/Quaker_Oats_Logo.svg/1200px-Quaker_Oats_Logo.svg.png  ',
+    image: '/products/quaker.webp',
     category: 'Крупы и хлопья',
     tags: ['овсянка', 'завтрак', 'клетчатка', 'цельнозерновой'],
     stores: [
@@ -286,7 +286,7 @@ export const mockProducts: Product[] = [
     protein: 13.6,
     carbs: 65,
     fat: 3.3,
-    image: 'https://mistrall.ru/upload/iblock/8d5/8d5a0b8f1e3d5c0e3f3b3e3b3e3b3e3b.jpg  ',
+    image: '/products/mistral.webp',
     category: 'Крупы и хлопья',
     tags: ['гречка', 'крупа', 'без глютена', 'ЗОЖ'],
     stores: [
@@ -320,7 +320,7 @@ export const mockProducts: Product[] = [
     protein: 4.5,
     carbs: 6.3,
     fat: 3.5,
-    image: 'https://www.danone.ru/upload/iblock/7a0/7a0e3b3e3b3e3b3e3b3e3b3e3b3e3b3b.jpg  ',
+    image: '/products/activia.webp',
     category: 'Молочные продукты',
     tags: ['йогурт', 'пробиотики', 'натуральный', 'кишечник'],
     stores: [
@@ -354,7 +354,7 @@ export const mockProducts: Product[] = [
     protein: 3,
     carbs: 4,
     fat: 3.2,
-    image: 'https://prostokvashino.ru/upload/iblock/3e3/3e3b3e3b3e3b3e3b3e3b3e3b3e3b3e3b.jpg  ',
+    image: '/products/kefir.webp',
     category: 'Молочные продукты',
     tags: ['кефир', 'молоко', 'кишечник', 'кальций'],
     stores: [
@@ -388,7 +388,7 @@ export const mockProducts: Product[] = [
     protein: 16,
     carbs: 3,
     fat: 5,
-    image: 'https://prostokvashino.ru/upload/iblock/3e3/3e3b3e3b3e3b3e3b3e3b3e3b3e3b3e3b.jpg  ',
+    image: '/products/prostokv.webp',
     category: 'Молочные продукты',
     tags: ['творог', 'белок', 'кальций', 'ЗОЖ'],
     stores: [
@@ -422,7 +422,7 @@ export const mockProducts: Product[] = [
     protein: 0,
     carbs: 0,
     fat: 0,
-    image: 'https://greenfield.ru/upload/iblock/1a2/1a2b3c4d5e6f7g8h9i0j1k2l3m4n5o6p.jpg  ',
+    image: '/products/greenfield.webp',
     category: 'Напитки',
     tags: ['чай', 'зеленый', 'жасмин', 'антиоксиданты'],
     stores: [
@@ -456,7 +456,7 @@ export const mockProducts: Product[] = [
     protein: 0.5,
     carbs: 12.5,
     fat: 0.1,
-    image: 'https://frutonyanya.ru/upload/iblock/9a8/9a8b7c6d5e4f3g2h1i0j9k8l7m6n5o4.jpg  ',
+    image: '/products/fruto.webp',
     category: 'Детское питание',
     tags: ['пюре', 'фрукты', 'натуральное', 'детское'],
     stores: [
@@ -490,7 +490,7 @@ export const mockProducts: Product[] = [
     protein: 3.8,
     carbs: 13.2,
     fat: 2.5,
-    image: 'https://danone.ru/upload/iblock/b1c/b1c2d3e4f5g6h7i8j9k0l1m2n3o4p5.jpg  ',
+    image: '/products/balance.webp',
     category: 'Молочные продукты',
     tags: ['йогурт', 'бифидобактерии', 'клубника', 'кишечник'],
     stores: [
@@ -524,7 +524,7 @@ export const mockProducts: Product[] = [
     protein: 6.8,
     carbs: 39.8,
     fat: 1.3,
-    image: 'https://borodino-hleb.ru/upload/iblock/c1d/c1d2e3f4g5h6i7j8k9l0m1n2o3p4q5.jpg  ',
+    image: '/products/borodino.webp',
     category: 'Хлеб и выпечка',
     tags: ['хлеб', 'ржаной', 'бородинский', 'ГОСТ'],
     stores: [
@@ -558,7 +558,7 @@ export const mockProducts: Product[] = [
     protein: 6.5,
     carbs: 3.5,
     fat: 24,
-    image: 'https://hochland.ru/upload/iblock/d1e/d1e2f3g4h5i6j7k8l9m0n1o2p3q4r5.jpg  ',
+    image: '/products/cheese.webp',
     category: 'Молочные продукты',
     tags: ['сыр', 'сливочный', 'филадельфия', 'закуска'],
     stores: [
@@ -592,7 +592,7 @@ export const mockProducts: Product[] = [
     protein: 8,
     carbs: 65,
     fat: 10,
-    image: 'https://greenvalley.ru/upload/iblock/e1f/e1f2g3h4i5j6k7l8m9n0o1p2q3r4s5.jpg  ',
+    image: '/products/musli.webp',
     category: 'Завтраки',
     tags: ['мюсли', 'ягоды', 'цельнозерновой', 'завтрак'],
     stores: [
@@ -638,7 +638,16 @@ export async function GET(request: NextRequest) {
 
     // If user token present, try to filter by user's preferences
     try {
-      const token = getTokenFromHeaders(request.headers)
+      // Try header first, then cookie fallback (some clients use credentials: 'include')
+      let token = getTokenFromHeaders(request.headers)
+      if (!token) {
+        try {
+          const cookie = request.cookies.get('token')
+          if (cookie) token = cookie.value
+        } catch (e) {
+          console.warn('Cookie read failed in /api/products', e)
+        }
+      }
       if (token) {
         const payload = await verifyToken(token)
         if (payload?.userId) {
@@ -647,10 +656,22 @@ export async function GET(request: NextRequest) {
           const user = await db.collection('users').findOne({ _id: new ObjectId(payload.userId) })
           const prefs = user?.preferences
           if (prefs) {
-            // remove products that match forbidden tags
+            // remove products that match forbidden words/tags (support name/category and tags, case-insensitive)
             const forbidden: string[] = prefs.forbidden || []
             if (forbidden.length > 0) {
-              result = result.filter(p => !p.tags?.some(t => forbidden.includes(t)))
+              const forbiddenLower = forbidden.map(f => String(f).toLowerCase())
+              result = result.filter(p => {
+                const name = String(p.name || '').toLowerCase()
+                const category = String(p.category || '').toLowerCase()
+                const tags = (p.tags || []).map((t: any) => String(t).toLowerCase())
+
+                // if any forbidden token appears in name or category, exclude
+                for (const f of forbiddenLower) {
+                  if (f && (name.includes(f) || category.includes(f))) return false
+                  if (f && tags.some(t => t === f)) return false
+                }
+                return true
+              })
             }
             // simple dietaryRestrictions filter: if product has nutritionalInfo flags that conflict, exclude
             const dietary: string[] = prefs.dietaryRestrictions || []

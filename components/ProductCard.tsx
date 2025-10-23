@@ -86,19 +86,16 @@ export default function ProductCard({
     }
   }
   return (
-    <div className="card w-80 sm:w-96 p-4 rounded-lg shadow-sm bg-white flex-shrink-0 snap-start">
-      <div className="h-44 mb-3 bg-gray-100 rounded overflow-hidden flex items-center justify-center">
+    <div className="w-full sm:w-80 md:w-96 p-4 rounded-lg shadow-sm bg-white">
+      <div className="h-44 mb-3 bg-white rounded overflow-hidden flex items-center justify-center">
         <img
           src={product.image || product.imageUrl}
           alt={product.name}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-contain"
         />
       </div>
       <div className="font-medium text-[var(--dark-green)] mb-1">
         {product.name}
-      </div>
-      <div className="mt-1 text-sm text-[var(--text-color)]/80">
-        {product.price} ₽
       </div>
       <div className="flex items-center justify-between mb-3">
         <div className="text-lg font-bold text-[var(--accent-orange)]">

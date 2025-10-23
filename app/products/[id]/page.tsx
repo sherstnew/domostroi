@@ -60,7 +60,8 @@ export default function ProductPage() {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const me = await fetch('/api/auth/me', { credentials: 'include' })
+        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+        const me = await fetch('/api/auth/me', { credentials: 'include', headers: token ? { Authorization: `Bearer ${token}` } : undefined })
         if (!me.ok) return
         const data = await me.json()
         const favs: string[] = data.user?.favorites || []
@@ -80,8 +81,9 @@ export default function ProductPage() {
   useEffect(() => {
     const fetchData = async () => {
       try {
+        const token = localStorage.getItem('token')
         const [productRes, storesRes] = await Promise.all([
-            fetch(`/api/products/${productId}`),
+            fetch(`/api/products/${productId}`, { headers: token ? { Authorization: `Bearer ${token}` } : undefined }),
           fetch('/api/stores')
         ])
 
@@ -184,13 +186,14 @@ export default function ProductPage() {
                 <div className="flex items-center gap-3">
                   <button
                     onClick={async () => {
-                      try {
-                        let res
-                        if (favorite) {
-                          res = await fetch(`/api/favorites?productId=${encodeURIComponent(productId ?? '')}`, { method: 'DELETE', credentials: 'include' })
-                        } else {
-                          res = await fetch('/api/favorites', { method: 'POST', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify({ productId }) })
-                        }
+                        try {
+                          const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+                          let res
+                          if (favorite) {
+                            res = await fetch(`/api/favorites?productId=${encodeURIComponent(productId ?? '')}`, { method: 'DELETE', credentials: 'include', headers: token ? { Authorization: `Bearer ${token}` } : undefined })
+                          } else {
+                            res = await fetch('/api/favorites', { method: 'POST', headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) }, credentials: 'include', body: JSON.stringify({ productId }) })
+                          }
                         if (!res.ok) throw new Error('Ошибка')
                         setFavorite(!favorite)
                       } catch (err) {

@@ -52,7 +52,8 @@ export default function PreferencesForm({ initial = {}, onSave, showActions = tr
       // try to get existing preferences to merge
       let existing: any = {}
       try {
-        const r = await fetch('/api/user-preferences', { credentials: 'include' })
+        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+        const r = await fetch('/api/user-preferences', { credentials: 'include', headers: token ? { Authorization: `Bearer ${token}` } : undefined })
         if (r.ok) {
           const d = await r.json()
           existing = d.preferences || {}
@@ -62,7 +63,8 @@ export default function PreferencesForm({ initial = {}, onSave, showActions = tr
       }
 
       const merged = { ...existing, ...payload }
-      const res = await fetch('/api/user-preferences', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, credentials: 'include', body: JSON.stringify(merged) })
+  const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+  const res = await fetch('/api/user-preferences', { method: 'PUT', headers: { 'Content-Type': 'application/json', ...(token ? { Authorization: `Bearer ${token}` } : {}) }, credentials: 'include', body: JSON.stringify(merged) })
       if (!res.ok) throw new Error('Failed saving preferences')
       // server returns { message, preferences }
       const data = await res.json()

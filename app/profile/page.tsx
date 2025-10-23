@@ -20,9 +20,10 @@ export default function ProfilePage() {
   useEffect(() => {
     const load = async () => {
       try {
+        const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
         const [prefsRes, meRes] = await Promise.all([
-          fetch("/api/user-preferences"),
-          fetch("/api/auth/me", { credentials: "include" }),
+          fetch("/api/user-preferences", { headers: token ? { Authorization: `Bearer ${token}` } : undefined }),
+          fetch("/api/auth/me", { credentials: "include", headers: token ? { Authorization: `Bearer ${token}` } : undefined }),
         ]);
         if (prefsRes.ok) {
           const data = await prefsRes.json();
@@ -54,9 +55,10 @@ export default function ProfilePage() {
   const save = async () => {
     try {
       // save preferences
+      const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
       await fetch("/api/user-preferences", {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
         credentials: "include",
         body: JSON.stringify(prefs),
       });
@@ -70,7 +72,7 @@ export default function ProfilePage() {
         if (Object.keys(payload).length > 0) {
           const res2 = await fetch("/api/auth/me", {
             method: "PATCH",
-            headers: { "Content-Type": "application/json" },
+            headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
             credentials: "include",
             body: JSON.stringify(payload),
           });
@@ -145,7 +147,7 @@ export default function ProfilePage() {
           <PreferencesForm
             initial={prefs}
             /* showActions defaults to true — render internal buttons */
-            onSave={(p: any) => setPrefs(p || {})}
+            onSave={(p: any) => setPrefs((prev: any) => ({ ...(prev || {}), ...(p || {}) }))}
           />
         </div>
       </div>

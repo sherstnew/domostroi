@@ -108,39 +108,19 @@ export default function Header() {
                     <Heart className="h-5 w-5" />
                     <span className="sr-only">Избранное</span>
                   </Link>
-
-                  <Sheet open={cartOpen} onOpenChange={setCartOpen}>
-                    <SheetTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-10 w-10 hover:text-[var(--light-green)]">
-                        <ShoppingCart className="w-5 h-5" />
-                        {cartCount > 0 && <span className="ml-1 text-sm text-[var(--accent-orange)]">{cartCount}</span>}
-                        <span className="sr-only">Корзина</span>
-                      </Button>
-                    </SheetTrigger>
-                    <SheetContent side="right" className="w-full sm:w-[420px]">
-                      <SheetTitle className="sr-only">Корзина</SheetTitle>
-                      <MiniCart onClose={() => setCartOpen(false)} />
-                    </SheetContent>
-                  </Sheet>
+                  {/* Desktop cart button opens global cart sheet */}
+                  <Button variant="ghost" size="icon" className="h-10 w-10 hover:text-[var(--light-green)]" onClick={() => setCartOpen(true)}>
+                    <ShoppingCart className="w-5 h-5" />
+                    {cartCount > 0 && <span className="ml-1 text-sm text-[var(--accent-orange)]">{cartCount}</span>}
+                    <span className="sr-only">Корзина</span>
+                  </Button>
                 </div>
               </nav>
 
               {/* Mobile nav: cart + menu */}
               <div className="md:hidden">
                 <div className="flex items-center">
-                  <Sheet open={cartOpen} onOpenChange={setCartOpen}>
-                    <SheetTrigger asChild>
-                      <Button variant="ghost" size="icon" className="mr-2 h-10 w-10 hover:text-[var(--light-green)]">
-                        <ShoppingCart className="w-5 h-5" />
-                        {cartCount > 0 && <span className="ml-1 text-sm text-[var(--accent-orange)]">{cartCount}</span>}
-                        <span className="sr-only">Корзина</span>
-                      </Button>
-                    </SheetTrigger>
-                    <SheetContent side="right" className="w-full sm:w-[420px] bg-white">
-                      <SheetTitle className="sr-only">Корзина</SheetTitle>
-                      <MiniCart onClose={() => setCartOpen(false)} />
-                    </SheetContent>
-                  </Sheet>
+                  {/* Cart is accessible from the side menu on mobile to avoid header crowding */}
 
                   <Sheet open={open} onOpenChange={setOpen}>
                     <SheetTrigger asChild>
@@ -158,6 +138,12 @@ export default function Header() {
                         </div>
 
                         <nav className="flex-1 p-4 space-y-4">
+                          <button onClick={() => { setOpen(false); setCartOpen(true) }} className="block py-3 px-4 rounded-lg font-medium text-gray-700 hover:bg-gray-100">
+                            <div className="flex items-center gap-3">
+                              <ShoppingCart className="h-5 w-5" />
+                              <span>Корзина{cartCount > 0 ? ` (${cartCount})` : ''}</span>
+                            </div>
+                          </button>
                           {navigation.map((item) => (
                             <Link
                               key={item.href}
@@ -281,6 +267,13 @@ export default function Header() {
           </div>
         </div>
       </div>
+      {/* Global cart sheet (opened by desktop button or mobile menu) */}
+      <Sheet open={cartOpen} onOpenChange={setCartOpen}>
+        <SheetContent side="right" className="w-full sm:w-[420px] bg-white">
+          <SheetTitle className="sr-only">Корзина</SheetTitle>
+          <MiniCart onClose={() => setCartOpen(false)} />
+        </SheetContent>
+      </Sheet>
     </header>
   )
 }
