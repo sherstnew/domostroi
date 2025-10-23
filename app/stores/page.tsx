@@ -13,7 +13,7 @@ interface Store {
 }
 
 export default function StoresPage() {
-  const { user } = useAuth()
+  const { user, updateUser } = useAuth()
   const [stores, setStores] = useState<Store[]>([])
   const [loading, setLoading] = useState(true)
   const toasts = useToasts()
@@ -51,23 +51,34 @@ export default function StoresPage() {
                   <div className="text-sm text-gray-600">{s.address}</div>
                 </Link>
                 <div className="ml-4">
-                  {(user as any)?.selectedStore === s._id ? (
-                    <button disabled className="px-3 py-1 opacity-50 cursor-not-allowed border rounded">Выбран</button>
-                  ) : (
-                    <button onClick={async () => {
-                      try {
-                        const token = localStorage.getItem('token')
-                        if (!token) { window.location.href = '/login'; return }
-                        const res = await fetch('/api/user/store', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ storeId: s._id, storeName: s.name }) })
-                        if (!res.ok) throw new Error('fail')
-                        const jd = await res.json()
-                        try { window.dispatchEvent(new CustomEvent('user:updated', { detail: { user: jd.user } })) } catch (e) {}
-                        window.location.reload();
-                        toasts.add('Магазин выбран', 'success')
-                      } catch (e) { console.error(e); toasts.add('Ошибка при выборе магазина', 'error') }
-                    }} className="btn-primary px-3 py-1">Выбрать</button>
-                  )}
-                </div>
+                    {((user as any)?.selectedStore && String((user as any).selectedStore) === String(s._id)) ? (
+                      <div className="flex gap-2">
+                        <button onClick={async () => {
+                          try {
+                            const token = localStorage.getItem('token')
+                            if (!token) { window.location.href = '/login'; return }
+                            const res = await fetch('/api/user/store', { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } })
+                            if (!res.ok) throw new Error('fail')
+                            const jd = await res.json()
+                            if (jd.user && updateUser) updateUser(jd.user)
+                            toasts.add('Выбор магазина отменён', 'success')
+                          } catch (e) { console.error(e); toasts.add('Ошибка при отмене выбора магазина', 'error') }
+                        }} className="px-3 py-1 border rounded text-red-600">Отменить</button>
+                      </div>
+                    ) : (
+                      <button onClick={async () => {
+                        try {
+                          const token = localStorage.getItem('token')
+                          if (!token) { window.location.href = '/login'; return }
+                          const res = await fetch('/api/user/store', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ storeId: s._id, storeName: s.name }) })
+                          if (!res.ok) throw new Error('fail')
+                          const jd = await res.json()
+                          if (jd.user && updateUser) updateUser(jd.user)
+                          toasts.add('Магазин выбран', 'success')
+                        } catch (e) { console.error(e); toasts.add('Ошибка при выборе магазина', 'error') }
+                      }} className="btn-primary px-3 py-1">Выбрать</button>
+                    )}
+                  </div>
               </div>
             ))}
           </div>

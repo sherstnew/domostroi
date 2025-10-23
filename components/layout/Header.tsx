@@ -17,12 +17,17 @@ import MiniCart from '@/components/layout/MiniCart'
 
 export default function Header() {
   const pathname = usePathname()
-  const { user, logout, login } = useAuth()
+  const { user, logout, login, updateUser } = useAuth()
   const toasts = useToasts()
   const [cartCount, setCartCount] = useState(0)
   const [selectedStoreName, setSelectedStoreName] = useState<string | null>((user as any)?.selectedStoreName || (user as any)?.selectedStore || null)
   const [open, setOpen] = useState(false)
   const [cartOpen, setCartOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const isActive = (path: string) => pathname === path
 
@@ -120,59 +125,86 @@ export default function Header() {
               {/* Mobile nav: cart + menu */}
               <div className="md:hidden">
                 <div className="flex items-center">
-                  {/* Cart is accessible from the side menu on mobile to avoid header crowding */}
-
-                  <Sheet open={open} onOpenChange={setOpen}>
-                    <SheetTrigger asChild>
-                      <Button variant="ghost" size="icon" className="ml-2 h-10 w-10">
-                        <Menu className="h-5 w-5" />
-                        <span className="sr-only">Открыть меню</span>
-                      </Button>
-                    </SheetTrigger>
-                    <SheetContent side="right" className="w-full sm:w-[400px] bg-white">
-                      <SheetTitle className="sr-only">Меню навигации</SheetTitle>
-                      <div className="flex flex-col h-full">
-                        <div className="p-4 border-b border-gray-200">
-                          <p className="text-sm text-gray-600">Добро пожаловать</p>
-                          <p className="font-medium text-[var(--dark-green)] mt-1">{user.name}</p>
-                        </div>
-
-                        <nav className="flex-1 p-4 space-y-4">
-                          <button onClick={() => { setOpen(false); setCartOpen(true) }} className="block py-3 px-4 rounded-lg font-medium text-gray-700 hover:bg-gray-100">
-                            <div className="flex items-center gap-3">
-                              <ShoppingCart className="h-5 w-5" />
-                              <span>Корзина{cartCount > 0 ? ` (${cartCount})` : ''}</span>
+                  {/* Render mobile menu only on client to avoid SSR id mismatch from Radix primitives */}
+                  {mounted && (
+                    <>
+                      <Sheet open={open} onOpenChange={setOpen}>
+                        <SheetTrigger asChild>
+                          <Button variant="ghost" size="icon" className="ml-2 h-10 w-10">
+                            <Menu className="h-5 w-5" />
+                            <span className="sr-only">Открыть меню</span>
+                          </Button>
+                        </SheetTrigger>
+                        <SheetContent side="right" className="w-full sm:w-[400px] bg-white">
+                          <SheetTitle className="sr-only">Меню навигации</SheetTitle>
+                          <div className="flex flex-col h-full">
+                            <div className="p-4 border-b border-gray-200">
+                              <p className="text-sm text-gray-600">Добро пожаловать</p>
+                              <p className="font-medium text-[var(--dark-green)] mt-1">{user.name}</p>
                             </div>
-                          </button>
-                          {navigation.map((item) => (
-                            <Link
-                              key={item.href}
-                              href={item.href}
-                              onClick={() => setOpen(false)}
-                              className={`block py-3 px-4 rounded-lg font-medium transition-colors ${
-                                isActive(item.href)
-                                  ? 'bg-[var(--light-green)]/10 text-[var(--light-green)] border border-[var(--light-green)]/20'
-                                  : 'text-gray-700 hover:bg-gray-100 hover:text-[var(--light-green)]'
-                              }`}
-                            >
-                              {item.label}
-                            </Link>
-                          ))}
 
-                          <Link href={favLink.href} onClick={() => setOpen(false)} className="block py-3 px-4 rounded-lg font-medium text-gray-700 hover:bg-gray-100 hover:text-[var(--light-green)]">
-                            <div className="flex items-center gap-3">
-                              <Heart className="h-5 w-5" />
-                              <span>Избранное</span>
+                            <nav className="flex-1 p-4 space-y-4">
+                              <button onClick={() => { setOpen(false); setCartOpen(true) }} className="block py-3 px-4 rounded-lg font-medium text-gray-700 hover:bg-gray-100">
+                                <div className="flex items-center gap-3">
+                                  <ShoppingCart className="h-5 w-5" />
+                                  <span>Корзина{cartCount > 0 ? ` (${cartCount})` : ''}</span>
+                                </div>
+                              </button>
+                              {navigation.map((item) => (
+                                <Link
+                                  key={item.href}
+                                  href={item.href}
+                                  onClick={() => setOpen(false)}
+                                  className={`block py-3 px-4 rounded-lg font-medium transition-colors ${
+                                    isActive(item.href)
+                                      ? 'bg-[var(--light-green)]/10 text-[var(--light-green)] border border-[var(--light-green)]/20'
+                                      : 'text-gray-700 hover:bg-gray-100 hover:text-[var(--light-green)]'
+                                  }`}
+                                >
+                                  {item.label}
+                                </Link>
+                              ))}
+
+                              <Link href={favLink.href} onClick={() => setOpen(false)} className="block py-3 px-4 rounded-lg font-medium text-gray-700 hover:bg-gray-100 hover:text-[var(--light-green)]">
+                                <div className="flex items-center gap-3">
+                                  <Heart className="h-5 w-5" />
+                                  <span>Избранное</span>
+                                </div>
+                              </Link>
+
+                              {/* Selected store area: show chosen store and allow cancel */}
+                              {((user as any)?.selectedStoreName || (user as any)?.selectedStore) && (
+                                <div className="mt-4 border-t pt-4">
+                                  <div className="text-sm text-gray-600 mb-2">Магазин</div>
+                                  <div className="flex items-center justify-between gap-2">
+                                    <Link href={typeof (user as any)?.selectedStore === 'string' ? `/stores/${(user as any).selectedStore}` : '/stores'} onClick={() => setOpen(false)} className="font-medium text-[var(--dark-green)]">{(user as any)?.selectedStoreName || (user as any)?.selectedStore}</Link>
+                                    <div className="flex gap-2">
+                                      <button className="px-3 py-1 bg-red-600 text-white rounded" disabled>Выбрано</button>
+                                      <button onClick={async () => {
+                                        try {
+                                          const token = localStorage.getItem('token')
+                                          if (!token) { window.location.href = '/login'; return }
+                                          const res = await fetch('/api/user/store', { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } })
+                                          if (!res.ok) throw new Error('fail')
+                                          const jd = await res.json()
+                                          try { setOpen(false); if (updateUser) updateUser(jd.user) } catch (e) {}
+                                          toasts.add('Выбор магазина отменён', 'success')
+                                        } catch (e) { console.error(e); toasts.add('Ошибка при отмене выбора магазина', 'error') }
+                                      }} className="px-3 py-1 border rounded text-red-600">Отменить</button>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                            </nav>
+
+                            <div className="p-4 border-t border-gray-200">
+                              <Button variant="outline" onClick={handleLogout} className="w-full text-gray-700 hover:text-red-600 hover:border-red-200">Выйти</Button>
                             </div>
-                          </Link>
-                        </nav>
-
-                        <div className="p-4 border-t border-gray-200">
-                          <Button variant="outline" onClick={handleLogout} className="w-full text-gray-700 hover:text-red-600 hover:border-red-200">Выйти</Button>
-                        </div>
-                      </div>
-                    </SheetContent>
-                  </Sheet>
+                          </div>
+                        </SheetContent>
+                      </Sheet>
+                    </>
+                  )}
                 </div>
               </div>
             </>

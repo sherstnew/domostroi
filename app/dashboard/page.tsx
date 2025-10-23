@@ -76,7 +76,16 @@ export default function Dashboard() {
         const res = await fetch('/api/products', { headers: token ? { Authorization: `Bearer ${token}` } : undefined })
         if (!res.ok) return
         const jd = await res.json()
-        const prods = jd.products || []
+        let prods = jd.products || []
+        const selStore = (user as any)?.selectedStore
+        if (selStore) {
+          prods = [...prods].sort((a: any, b: any) => {
+            const aHas = (a.stores || []).some((s: any) => String(s.storeId) === String(selStore) && s.available)
+            const bHas = (b.stores || []).some((s: any) => String(s.storeId) === String(selStore) && s.available)
+            if (aHas === bHas) return 0
+            return aHas ? -1 : 1
+          })
+        }
         setAllProducts(prods)
         setSearchResults(prods)
       } catch (e) { console.error('Failed to load products', e) }

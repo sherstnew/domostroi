@@ -1,6 +1,7 @@
  'use client'
 
 import { useState, useEffect, useRef } from 'react'
+import { useAuth } from '@/context/AuthContext'
 import { useToasts } from '@/components/ui/toast'
 import { Loader2, PlusCircle, Trash2, Box, Layers } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -15,6 +16,7 @@ interface ProductGroup {
 
 export default function ProductGroups() {
   const toasts = useToasts()
+  const { user } = useAuth()
   const [groups, setGroups] = useState<ProductGroup[]>([])
   const [showCreateForm, setShowCreateForm] = useState(false)
   const [newGroupName, setNewGroupName] = useState('')
@@ -78,8 +80,17 @@ export default function ProductGroups() {
             const res = await fetch('/api/products', { headers: token ? { Authorization: `Bearer ${token}` } : undefined })
         if (!res.ok) return
         const data = await res.json()
-        const list = (data.products || []).map((p: any) => ({ id: p._id || p.id, name: p.name, price: p.price || 0, calories: p.calories || 0 }))
-        if (isMountedRef.current) setAvailableProducts(list)
+        let list = (data.products || []).map((p: any) => ({ id: p._id || p.id, name: p.name, price: p.price || 0, calories: p.calories || 0, stores: p.stores || [] }))
+        const sel = (user as any)?.selectedStore
+        if (sel) {
+          list = list.sort((a: any, b: any) => {
+            const aHas = (a.stores || []).some((s: any) => String(s.storeId) === String(sel) && s.available)
+            const bHas = (b.stores || []).some((s: any) => String(s.storeId) === String(sel) && s.available)
+            if (aHas === bHas) return 0
+            return aHas ? -1 : 1
+          })
+        }
+        if (isMountedRef.current) setAvailableProducts(list.map((p: any) => ({ id: p.id, name: p.name, price: p.price, calories: p.calories })))
       } catch (e) {
         console.error('Failed to load products for select', e)
       }
