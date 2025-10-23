@@ -663,12 +663,15 @@ export async function GET(request: NextRequest) {
               result = result.filter(p => {
                 const name = String(p.name || '').toLowerCase()
                 const category = String(p.category || '').toLowerCase()
+                const description = String(p.description || '').toLowerCase()
                 const tags = (p.tags || []).map((t: any) => String(t).toLowerCase())
 
-                // if any forbidden token appears in name or category, exclude
+                // if any forbidden token appears in name, category, description or tags (substring match), exclude
                 for (const f of forbiddenLower) {
-                  if (f && (name.includes(f) || category.includes(f))) return false
-                  if (f && tags.some(t => t === f)) return false
+                  if (!f) continue
+                  if (name.includes(f) || category.includes(f) || description.includes(f)) return false
+                  // tag matches if either the tag contains the forbidden token or vice-versa (to catch 'молоко' vs 'молочка')
+                  if (tags.some(t => t.includes(f) || f.includes(t))) return false
                 }
                 return true
               })
