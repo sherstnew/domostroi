@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useAuth } from '@/context/AuthContext'
+import { useToasts } from '@/components/ui/toast'
 import { Button } from '@/components/ui/button'
 import { 
   Sheet, 
@@ -16,7 +17,8 @@ import MiniCart from '@/components/layout/MiniCart'
 
 export default function Header() {
   const pathname = usePathname()
-  const { user, logout } = useAuth()
+  const { user, logout, login } = useAuth()
+  const toasts = useToasts()
   const [cartCount, setCartCount] = useState(0)
   const [selectedStoreName, setSelectedStoreName] = useState<string | null>((user as any)?.selectedStoreName || (user as any)?.selectedStore || null)
   const [open, setOpen] = useState(false)
@@ -249,6 +251,24 @@ export default function Header() {
                         </nav>
 
                         <div className="p-4 border-t border-gray-200 space-y-2">
+                          <button
+                            onClick={async () => {
+                              setOpen(false)
+                              try {
+                                const res = await fetch('/api/auth/login', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ email: 'test@test.com', password: 'qwerty' }) })
+                                const data = await res.json()
+                                if (!res.ok) throw new Error(data.error || 'Ошибка быстрого входа')
+                                login(data.token, data.user)
+                                toasts.add('Быстрый вход выполнен', 'success')
+                              } catch (e: any) {
+                                console.error(e)
+                                toasts.add(e?.message || 'Ошибка быстрого входа', 'error')
+                              }
+                            }}
+                            className="block w-full text-center py-3 rounded-lg font-medium text-gray-700 hover:bg-gray-100"
+                          >
+                            Быстрый вход
+                          </button>
                           <Link href="/login" onClick={() => setOpen(false)} className="block w-full text-center py-3 rounded-lg font-medium text-gray-700 hover:bg-gray-100">Вход</Link>
                           <Link href="/register" onClick={() => setOpen(false)} className="block w-full text-center py-3 rounded-lg btn-primary">Регистрация</Link>
                         </div>
