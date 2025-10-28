@@ -4,8 +4,7 @@ import { Product } from '@/types'
 import { getTokenFromHeaders, verifyToken } from '@/lib/auth'
 import { ObjectId } from 'mongodb'
 
-// Моковые данные продуктов
-export const mockProducts: Product[] = [
+const mockProducts: Product[] = [
   {
     _id: '1',
     name: 'Органические яблоки Гренни Смит',
@@ -19,9 +18,9 @@ export const mockProducts: Product[] = [
     category: 'Фрукты',
     tags: ['без глютена', 'веган', 'низкий ГИ', 'органический'],
     stores: [
-      { storeId: '7', available: true, aisle: 'Фрукты', shelf: 'A3', price: 320, lastUpdated: new Date() },
-      { storeId: '3', available: true, aisle: 'Органик', shelf: 'B1', price: 350, lastUpdated: new Date() },
-      { storeId: '9', available: false, lastUpdated: new Date() }
+      { storeId: '7', available: true, point: 'Овощи фрукты 3', price: 320, lastUpdated: new Date() },
+      { storeId: '3', available: true, point: 'Овощи фрукты 2', price: 350, lastUpdated: new Date() },
+      { storeId: '9', available: false, point: 'Овощи фрукты 1', price: 400, lastUpdated: new Date() }
     ],
     nutritionalInfo: {
       glutenFree: true,
@@ -44,8 +43,8 @@ export const mockProducts: Product[] = [
     category: 'Напитки',
     tags: ['без лактозы', 'веган', 'без сахара', 'низкокалорийный'],
     stores: [
-      { storeId: '2', available: true, aisle: 'Растительное молоко', shelf: 'C2', price: 280, lastUpdated: new Date() },
-      { storeId: '5', available: false, lastUpdated: new Date() }
+      { storeId: '2', available: true, point: 'Молочные продукты 1', price: 280, lastUpdated: new Date() },
+      { storeId: '5', available: true, point: 'Молочные продукты 2', price: 300, lastUpdated: new Date() }
     ],
     nutritionalInfo: {
       glutenFree: true,
@@ -68,9 +67,9 @@ export const mockProducts: Product[] = [
     category: 'Крупы',
     tags: ['без глютена', 'веган', 'высокий белок', 'органический'],
     stores: [
-      { storeId: '1', available: true, aisle: 'Крупы', shelf: 'D4', price: 450, lastUpdated: new Date() },
-      { storeId: '8', available: true, aisle: 'Органик', shelf: 'B3', price: 480, lastUpdated: new Date() },
-      { storeId: '4', available: true, aisle: 'Здоровое питание', shelf: 'E1', price: 430, lastUpdated: new Date() }
+      { storeId: '1', available: true, point: 'Бакалея', price: 450, lastUpdated: new Date() },
+      { storeId: '8', available: true, point: 'Бакалея', price: 480, lastUpdated: new Date() },
+      { storeId: '4', available: true, point: 'Специи соусы 2', price: 430, lastUpdated: new Date() }
     ],
     nutritionalInfo: {
       glutenFree: true,
@@ -93,8 +92,8 @@ export const mockProducts: Product[] = [
     category: 'Рыба',
     tags: ['высокий белок', 'омега-3', 'низкие углеводы'],
     stores: [
-      { storeId: '6', available: true, aisle: 'Рыба', shelf: 'F2', price: 1200, lastUpdated: new Date() },
-      { storeId: '10', available: true, aisle: 'Морепродукты', shelf: 'G1', price: 1250, lastUpdated: new Date() }
+      { storeId: '6', available: true, point: 'Заморозка 1', price: 1200, lastUpdated: new Date() },
+      { storeId: '10', available: true, point: 'Заморозка 2', price: 1250, lastUpdated: new Date() }
     ],
     nutritionalInfo: {
       glutenFree: true,
@@ -117,9 +116,9 @@ export const mockProducts: Product[] = [
     category: 'Овощи',
     tags: ['полезные жиры', 'веган', 'без глютена', 'высокая калорийность'],
     stores: [
-      { storeId: '3', available: true, aisle: 'Овощи', shelf: 'A1', price: 180, lastUpdated: new Date() },
-      { storeId: '7', available: true, aisle: 'Органик', shelf: 'B2', price: 200, lastUpdated: new Date() },
-      { storeId: '2', available: false, lastUpdated: new Date() }
+      { storeId: '3', available: true, point: 'Овощи фрукты 2', price: 180, lastUpdated: new Date() },
+      { storeId: '7', available: true, point: 'Овощи фрукты 3', price: 200, lastUpdated: new Date() },
+      { storeId: '2', available: false, point: 'Молочные продукты 1', price: 190, lastUpdated: new Date() }
     ],
     nutritionalInfo: {
       glutenFree: true,
@@ -142,9 +141,9 @@ export const mockProducts: Product[] = [
     category: 'Крупы',
     tags: ['без глютена', 'веган', 'высокий белок', 'бюджетный'],
     stores: [
-      { storeId: '5', available: true, aisle: 'Крупы', shelf: 'D2', price: 120, lastUpdated: new Date() },
-      { storeId: '9', available: true, aisle: 'Бакалея', shelf: 'C1', price: 110, lastUpdated: new Date() },
-      { storeId: '1', available: true, aisle: 'Крупы', shelf: 'E2', price: 130, lastUpdated: new Date() }
+      { storeId: '5', available: true, point: 'Бакалея', price: 120, lastUpdated: new Date() },
+      { storeId: '9', available: true, point: 'Бакалея', price: 110, lastUpdated: new Date() },
+      { storeId: '1', available: true, point: 'Бакалея', price: 130, lastUpdated: new Date() }
     ],
     nutritionalInfo: {
       glutenFree: true,
@@ -166,7 +165,9 @@ export const mockProducts: Product[] = [
     image: '/products/hleb.webp',
     category: 'Хлеб',
     tags: ['хлеб', 'цельнозерновой', 'без сахара'],
-    stores: [ { storeId: '4', available: true, aisle: 'Хлеб', shelf: 'H1', price: 80, lastUpdated: new Date() } ],
+    stores: [ 
+      { storeId: '4', available: true, point: 'Хлеб', price: 80, lastUpdated: new Date() }
+    ],
     nutritionalInfo: {
       glutenFree: false,
       lactoseFree: true,
@@ -191,12 +192,14 @@ export const mockProducts: Product[] = [
       {
         storeId: '10',
         available: true,
+        point: 'Кондитерка',
         price: 89,
         lastUpdated: new Date('2025-10-20T10:00:00Z')
       },
       {
         storeId: '2',
         available: true,
+        point: 'Кондитерка',
         price: 92,
         lastUpdated: new Date('2025-10-20T10:00:00Z')
       }
@@ -225,12 +228,14 @@ export const mockProducts: Product[] = [
       {
         storeId: '7',
         available: true,
+        point: 'Кондитерка',
         price: 65,
         lastUpdated: new Date('2025-10-20T10:00:00Z')
       },
       {
         storeId: '3',
         available: true,
+        point: 'Кондитерка',
         price: 68,
         lastUpdated: new Date('2025-10-20T10:00:00Z')
       }
@@ -259,12 +264,14 @@ export const mockProducts: Product[] = [
       {
         storeId: '1',
         available: true,
+        point: 'Бакалея',
         price: 199,
         lastUpdated: new Date('2025-10-20T10:00:00Z')
       },
       {
         storeId: '8',
         available: true,
+        point: 'Бакалея',
         price: 210,
         lastUpdated: new Date('2025-10-20T10:00:00Z')
       }
@@ -293,12 +300,14 @@ export const mockProducts: Product[] = [
       {
         storeId: '5',
         available: true,
+        point: 'Бакалея',
         price: 120,
         lastUpdated: new Date('2025-10-20T10:00:00Z')
       },
       {
         storeId: '9',
         available: true,
+        point: 'Бакалея',
         price: 125,
         lastUpdated: new Date('2025-10-20T10:00:00Z')
       }
@@ -327,12 +336,14 @@ export const mockProducts: Product[] = [
       {
         storeId: '4',
         available: true,
+        point: 'Молочные продукты 1',
         price: 75,
         lastUpdated: new Date('2025-10-20T10:00:00Z')
       },
       {
         storeId: '6',
         available: true,
+        point: 'Молочные продукты 1',
         price: 78,
         lastUpdated: new Date('2025-10-20T10:00:00Z')
       }
@@ -361,12 +372,14 @@ export const mockProducts: Product[] = [
       {
         storeId: '2',
         available: true,
+        point: 'Молочные продукты 1',
         price: 95,
         lastUpdated: new Date('2025-10-20T10:00:00Z')
       },
       {
         storeId: '7',
         available: true,
+        point: 'Молочные продукты 1',
         price: 98,
         lastUpdated: new Date('2025-10-20T10:00:00Z')
       }
@@ -395,12 +408,14 @@ export const mockProducts: Product[] = [
       {
         storeId: '10',
         available: true,
+        point: 'Молочные продукты 2',
         price: 140,
         lastUpdated: new Date('2025-10-20T10:00:00Z')
       },
       {
         storeId: '1',
         available: true,
+        point: 'Молочные продукты 1',
         price: 145,
         lastUpdated: new Date('2025-10-20T10:00:00Z')
       }
@@ -429,12 +444,14 @@ export const mockProducts: Product[] = [
       {
         storeId: '3',
         available: true,
+        point: 'Чай кофе хлебцы 1',
         price: 189,
         lastUpdated: new Date('2025-10-20T10:00:00Z')
       },
       {
         storeId: '8',
         available: true,
+        point: 'Чай кофе хлебцы 2',
         price: 195,
         lastUpdated: new Date('2025-10-20T10:00:00Z')
       }
@@ -463,12 +480,14 @@ export const mockProducts: Product[] = [
       {
         storeId: '5',
         available: true,
+        point: 'Детские товары',
         price: 79,
         lastUpdated: new Date('2025-10-20T10:00:00Z')
       },
       {
         storeId: '9',
         available: true,
+        point: 'Детские товары',
         price: 82,
         lastUpdated: new Date('2025-10-20T10:00:00Z')
       }
@@ -497,12 +516,14 @@ export const mockProducts: Product[] = [
       {
         storeId: '6',
         available: true,
+        point: 'Молочные продукты 1',
         price: 85,
         lastUpdated: new Date('2025-10-20T10:00:00Z')
       },
       {
         storeId: '4',
         available: true,
+        point: 'Молочные продукты 1',
         price: 89,
         lastUpdated: new Date('2025-10-20T10:00:00Z')
       }
@@ -531,12 +552,14 @@ export const mockProducts: Product[] = [
       {
         storeId: '2',
         available: true,
+        point: 'Хлеб',
         price: 65,
         lastUpdated: new Date('2025-10-20T10:00:00Z')
       },
       {
         storeId: '7',
         available: true,
+        point: 'Хлеб',
         price: 68,
         lastUpdated: new Date('2025-10-20T10:00:00Z')
       }
@@ -565,12 +588,14 @@ export const mockProducts: Product[] = [
       {
         storeId: '8',
         available: true,
+        point: 'Сыры пресервы 1',
         price: 299,
         lastUpdated: new Date('2025-10-20T10:00:00Z')
       },
       {
         storeId: '10',
         available: true,
+        point: 'Сыры пресервы 2',
         price: 310,
         lastUpdated: new Date('2025-10-20T10:00:00Z')
       }
@@ -599,12 +624,14 @@ export const mockProducts: Product[] = [
       {
         storeId: '1',
         available: true,
+        point: 'Бакалея',
         price: 249,
         lastUpdated: new Date('2025-10-20T10:00:00Z')
       },
       {
         storeId: '5',
         available: true,
+        point: 'Бакалея',
         price: 259,
         lastUpdated: new Date('2025-10-20T10:00:00Z')
       }
@@ -618,6 +645,7 @@ export const mockProducts: Product[] = [
     }
   }
 ];
+// Заменили поля aisle/shelf на point прямо в данных выше.
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)

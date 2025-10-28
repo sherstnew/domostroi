@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react'
+import { useRouter } from 'next/navigation'
 import { useParams } from 'next/navigation'
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
@@ -158,47 +159,45 @@ export default function StorePage() {
             </div>
 
             {/* Карта (заглушка) */}
-            <div className="bg-gray-200 rounded-xl flex items-center justify-center min-h-[300px]">
-                <div className="text-center">
-                <div className="text-4xl mb-4">🗺️</div>
-                <p className="text-gray-600">Карта магазина</p>
-                <p className="text-sm text-gray-500 mt-2">
-                  Здесь будет интерактивная карта с расположением отделов
-                </p>
-                <div className="mt-4">
-                  {((user as any)?.selectedStore && String((user as any).selectedStore) === String(params.id)) ? (
-                    <div className="flex gap-2 justify-center">
-                      <button onClick={async () => {
-                        try {
-                          const token = localStorage.getItem('token')
-                          if (!token) { window.location.href = '/login'; return }
-                          const res = await fetch('/api/user/store', { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } })
-                          if (!res.ok) throw new Error('fail')
-                          const jd = await res.json()
-                          if (jd.user && updateUser) updateUser(jd.user)
-                          toasts.add('Выбор магазина отменён', 'success')
-                        } catch (e) { console.error(e); toasts.add('Ошибка при отмене выбора магазина', 'error') }
-                      }} className="btn-destructive px-4 py-2 mt-2">Отменить выбор</button>
-                      <button onClick={() => { try { window.location.href = `/stores/${params.id}` } catch (e) {} }} className="px-4 py-2 mt-2">Открыть магазин</button>
-                    </div>
-                  ) : (
-                    <div className="flex gap-2 justify-center">
-                      <button onClick={async () => {
-                        try {
-                          const token = localStorage.getItem('token')
-                          if (!token) { window.location.href = '/login'; return }
-                          const res = await fetch('/api/user/store', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ storeId: params.id, storeName: store?.name || null }) })
-                          if (!res.ok) throw new Error('fail')
-                          const jd = await res.json()
-                          if (jd.user && updateUser) updateUser(jd.user)
-                          toasts.add('Магазин выбран', 'success')
-                        } catch (e) { console.error(e); toasts.add('Ошибка при выборе магазина', 'error') }
-                      }} className="btn-primary px-4 py-2 mt-2">Выбрать магазин</button>
-                    </div>
-                  )}
+              <Link href={`/map?storeId=${params.id}`} className="bg-gray-200 rounded-xl flex items-center justify-center min-h-[300px] hover:shadow-md transition-shadow">
+                <div className="text-center p-6">
+                  <div className="text-4xl mb-4">🗺️</div>
+                  <p className="text-gray-600">Карта магазина</p>
+                  <p className="text-sm text-gray-500 mt-2">Здесь будет интерактивная карта с расположением отделов — нажмите, чтобы открыть подробную карту</p>
+                  <div className="mt-4">
+                    {((user as any)?.selectedStore && String((user as any).selectedStore) === String(params.id)) ? (
+                      <div className="flex gap-2 justify-center">
+                        <button onClick={(e) => { e.stopPropagation(); e.preventDefault(); (async () => {
+                          try {
+                            const token = localStorage.getItem('token')
+                            if (!token) { window.location.href = '/login'; return }
+                            const res = await fetch('/api/user/store', { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } })
+                            if (!res.ok) throw new Error('fail')
+                            const jd = await res.json()
+                            if (jd.user && updateUser) updateUser(jd.user)
+                            toasts.add('Выбор магазина отменён', 'success')
+                          } catch (e) { console.error(e); toasts.add('Ошибка при отмене выбора магазина', 'error') }
+                        })()} } className="btn-destructive px-4 py-2 mt-2">Отменить выбор</button>
+                        <button onClick={(e) => { e.stopPropagation(); e.preventDefault(); try { window.location.href = `/stores/${params.id}` } catch (e) {} }} className="px-4 py-2 mt-2">Открыть магазин</button>
+                      </div>
+                    ) : (
+                      <div className="flex gap-2 justify-center">
+                        <button onClick={(e) => { e.stopPropagation(); e.preventDefault(); (async () => {
+                          try {
+                            const token = localStorage.getItem('token')
+                            if (!token) { window.location.href = '/login'; return }
+                            const res = await fetch('/api/user/store', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ storeId: params.id, storeName: store?.name || null }) })
+                            if (!res.ok) throw new Error('fail')
+                            const jd = await res.json()
+                            if (jd.user && updateUser) updateUser(jd.user)
+                            toasts.add('Магазин выбран', 'success')
+                          } catch (e) { console.error(e); toasts.add('Ошибка при выборе магазина', 'error') }
+                        })()} } className="btn-primary px-4 py-2 mt-2">Выбрать магазин</button>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            </div>
+              </Link>
           </div>
 
           {/* Дополнительная информация */}

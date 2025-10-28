@@ -39,9 +39,8 @@ export interface Product {
 export interface ProductStore {
   storeId: string
   available: boolean
-  aisle?: string
-  shelf?: string
-  price?: number
+  point: string
+  price: number
   lastUpdated: Date
 }
 
