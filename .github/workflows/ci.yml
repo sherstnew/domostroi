@@ -26,12 +26,14 @@ jobs:
           chmod 600 private_key
           ssh -o StrictHostKeyChecking=no -i private_key root@89.23.101.217 << 'EOF'
             cd ~/domostroi
+            pwd
+            ls -la
 
-            cat > .env.production << 'ENV_EOF'
-            MONGODB_URI=$MONGODB_URI
-            JWT_SECRET=$JWT_SECRET
-            ENV_EOF
-            
+            echo "MONGODB_URI=$MONGODB_URI" > .env.production
+            echo "JWT_SECRET=$JWT_SECRET" >> .env.production
+
+            cat .env.production
+
             sudo docker stop domostroi || true
             sudo docker rm domostroi || true
             git pull origin master
