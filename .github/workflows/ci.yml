@@ -22,14 +22,21 @@ jobs:
       - name: SSH into VM and deploy
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          MONGODB_URI: ${{ secrets.MONGODB_URI }}
+          JWT_SECRET: ${{ secrets.JWT_SECRET }}
         run: |
           echo "$SSH_PRIVATE_KEY" &gt; private_key
           chmod 600 private_key
+          cat > .env.production << EOF
+          MONGODB_URI=$MONGODB_URI
+          JWT_SECRET=$JWT_SECRET
+          EOF
+          scp -o StrictHostKeyChecking=no -i private_key .env.production root@89.23.101.217:~/domostroi/.env.production
           ssh -o StrictHostKeyChecking=no -i private_key root@89.23.101.217 &lt;&lt; 'EOF'
             cd ~/domostroi
             sudo docker stop domostroi || true
             sudo docker rm domostroi || true
             git pull origin master
-            sudo docker build -t domostroi .
+            docker build -t domostroi .
             sudo docker run -d -p 2056:3000 --name domostroi domostroi
           EOF
