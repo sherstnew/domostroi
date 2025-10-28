@@ -89,6 +89,21 @@ export default function MiniCart({ onClose }: { onClose?: () => void }) {
     } catch (e) { console.error(e); toasts.add('Ошибка при удалении позиции', 'error') }
   }
 
+  const clearCart = async () => {
+    try {
+      const token = localStorage.getItem('token')
+      if (!token) { window.location.href = '/login'; return }
+      // set cart to empty array
+      const res = await fetch('/api/cart', { method: 'PUT', headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }, body: JSON.stringify({ cart: [] }) })
+      if (!res.ok) throw new Error('fail')
+      const jd = await res.json()
+      setItems(jd.cart || [])
+      try { window.dispatchEvent(new CustomEvent('cartUpdated', { detail: { count: jd.cart?.length ?? 0 } })) } catch (e) {}
+      toasts.add('Корзина очищена', 'success')
+      window.location.reload();
+    } catch (e) { console.error(e); toasts.add('Ошибка при очистке корзины', 'error') }
+  }
+
   const total = items.reduce((s, it) => s + ((it.priceSnapshot || 0) * (it.quantity || 1)), 0)
 
   return (
@@ -124,7 +139,7 @@ export default function MiniCart({ onClose }: { onClose?: () => void }) {
           <div className="font-bold">{total} ₽</div>
         </div>
         <div className="flex gap-2">
-          <Link href="/cart"><Button className="w-full">Оформить</Button></Link>
+          <Button className="w-full" onClick={clearCart} disabled={items.length === 0}>Очистить</Button>
         </div>
       </div>
     </div>

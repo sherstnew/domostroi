@@ -32,14 +32,15 @@ export default function MapPage() {
 
     // Build ordered mandatory array: products, with optional entrance at the start and exit at the end.
     const mandatoryArray: string[] = [...productPoints];
-    if (includeEntrance) mandatoryArray.unshift("Вход");
-    if (includeExit) mandatoryArray.push("Выход");
-
     // remove duplicates but preserve order (Set used only for dedupe)
     const deduped = Array.from(new Set(mandatoryArray));
 
     // need at least two mandatory points to produce a route — otherwise skip
     if (deduped.length < 2) return undefined;
+
+    if (includeEntrance) deduped.unshift("Вход");
+    if (includeExit) deduped.push("Выход");
+
 
     const rawRoute = findShortestPathWithMandatoryPoints(storeMap, deduped);
     return rawRoute;
@@ -189,10 +190,12 @@ export default function MapPage() {
         const cy = point.y + 5;
         // determine color: if point is in orderIds -> green, otherwise orange
         const isOrdered = orderIds.includes(point.id);
-        ctx.beginPath();
-        ctx.arc(cx, cy, 6, 0, Math.PI * 2);
-        ctx.closePath();
-        ctx.fillStyle = isOrdered ? "#8BC554" : "#F76711";
+        if (isOrdered) {
+          ctx.beginPath();
+          ctx.arc(cx, cy, 6, 0, Math.PI * 2);
+          ctx.closePath();
+        }
+        ctx.fillStyle = "#F76711";
         ctx.fill();
         // subtle stroke for contrast
         ctx.lineWidth = 1.5;
@@ -270,7 +273,7 @@ export default function MapPage() {
               <div className="text-gray-600">Загрузка...</div>
             ) : products.length === 0 ? (
               <div className="text-gray-500">
-                Нет доступных продуктов из вашей корзины для этого магазина.
+                Нет доступных продуктов из вашей корзины для этого магазина. Для начала, наберите корзину
               </div>
             ) : (
               <div className="grid gap-3">

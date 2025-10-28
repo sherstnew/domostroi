@@ -6,7 +6,7 @@
     --light-green: #8bc554;
     --dark-green: #003324;
     --accent-orange: #f76711;
-  --text-color: #333333; /* softer dark color (less contrast than pure black) */
+    --text-color: #333333; /* softer dark color (less contrast than pure black) */
     --cream-white: #f5ebe2;
   }
 
