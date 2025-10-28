@@ -139,6 +139,7 @@ export default function StorePage() {
                         const jd = await res.json();
                         if (jd.user && updateUser) updateUser(jd.user);
                         toasts.add("Выбор магазина отменён", "success");
+                        window.location.reload();
                       } catch (e) {
                         console.error(e);
                         toasts.add(
@@ -300,34 +301,6 @@ export default function StorePage() {
                   ))}
                 </div>
               )}
-
-              <div className="mt-4 flex justify-end gap-2">
-                <Button
-                  onClick={async () => {
-                    try {
-                      const res = await fetch(
-                        `/api/stores/${params.id}/favorites`,
-                        {
-                          method: "POST",
-                          headers: { "Content-Type": "application/json" },
-                          body: JSON.stringify({ productIds: selected }),
-                        }
-                      );
-                      if (!res.ok) throw new Error("fail");
-                      toasts.add(
-                        "Сохранено в любимые этого магазина",
-                        "success"
-                      );
-                    } catch (e) {
-                      console.error(e);
-                      toasts.add("Ошибка при сохранении", "error");
-                    }
-                  }}
-                  className="px-4 py-2"
-                >
-                  Сохранить выбор
-                </Button>
-              </div>
             </div>
           </div>
         </div>

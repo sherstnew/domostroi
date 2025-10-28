@@ -16,7 +16,7 @@ export const mockProducts: Product[] = [
     fat: 0.2,
     image: '/products/apples.webp',
     category: 'Фрукты',
-    tags: ['без глютена', 'веган', 'низкий ГИ', 'органический'],
+    tags: ['без глютена', 'веган', 'низкий ГИ', 'органический', 'яблоки', 'фрукты'],
     stores: [
       { storeId: '7', available: true, point: 'Овощи фрукты 3', price: 320, lastUpdated: new Date() },
       { storeId: '3', available: true, point: 'Овощи фрукты 2', price: 350, lastUpdated: new Date() },
@@ -41,7 +41,7 @@ export const mockProducts: Product[] = [
     fat: 3,
     image: '/products/mindal.webp',
     category: 'Напитки',
-    tags: ['без лактозы', 'веган', 'без сахара', 'низкокалорийный'],
+    tags: ['без лактозы', 'веган', 'без сахара', 'низкокалорийный', 'напиток', 'растительное молоко'],
     stores: [
       { storeId: '2', available: true, point: 'Молочные продукты 1', price: 280, lastUpdated: new Date() },
       { storeId: '5', available: true, point: 'Молочные продукты 2', price: 300, lastUpdated: new Date() }
@@ -65,7 +65,7 @@ export const mockProducts: Product[] = [
     fat: 1.9,
     image: '/products/kinoa.webp',
     category: 'Крупы',
-    tags: ['без глютена', 'веган', 'высокий белок', 'органический'],
+    tags: ['без глютена', 'веган', 'высокий белок', 'органический', 'крупа'],
     stores: [
       { storeId: '1', available: true, point: 'Бакалея', price: 450, lastUpdated: new Date() },
       { storeId: '8', available: true, point: 'Бакалея', price: 480, lastUpdated: new Date() },
@@ -90,7 +90,7 @@ export const mockProducts: Product[] = [
     fat: 13,
     image: '/products/losos.webp',
     category: 'Рыба',
-    tags: ['высокий белок', 'омега-3', 'низкие углеводы'],
+    tags: ['высокий белок', 'омега-3', 'низкие углеводы', 'рыба', 'морепродукты'],
     stores: [
       { storeId: '6', available: true, point: 'Заморозка 1', price: 1200, lastUpdated: new Date() },
       { storeId: '10', available: true, point: 'Заморозка 2', price: 1250, lastUpdated: new Date() }
@@ -114,7 +114,7 @@ export const mockProducts: Product[] = [
     fat: 15,
     image: '/products/avocado.webp',
     category: 'Овощи',
-    tags: ['полезные жиры', 'веган', 'без глютена', 'высокая калорийность'],
+    tags: ['полезные жиры', 'веган', 'без глютена', 'высокая калорийность', 'овощ'],
     stores: [
       { storeId: '3', available: true, point: 'Овощи фрукты 2', price: 180, lastUpdated: new Date() },
       { storeId: '7', available: true, point: 'Овощи фрукты 3', price: 200, lastUpdated: new Date() },
@@ -139,7 +139,7 @@ export const mockProducts: Product[] = [
     fat: 3,
     image: '/products/grechka.webp',
     category: 'Крупы',
-    tags: ['без глютена', 'веган', 'высокий белок', 'бюджетный'],
+    tags: ['без глютена', 'веган', 'высокий белок', 'бюджетный', 'крупа'],
     stores: [
       { storeId: '5', available: true, point: 'Бакалея', price: 120, lastUpdated: new Date() },
       { storeId: '9', available: true, point: 'Бакалея', price: 110, lastUpdated: new Date() },
@@ -164,7 +164,7 @@ export const mockProducts: Product[] = [
     fat: 3,
     image: '/products/hleb.webp',
     category: 'Хлеб',
-    tags: ['хлеб', 'цельнозерновой', 'без сахара'],
+    tags: ['хлеб', 'цельнозерновой', 'без сахара', 'выпечка'],
     stores: [ 
       { storeId: '4', available: true, point: 'Хлеб', price: 80, lastUpdated: new Date() }
     ],
@@ -187,7 +187,7 @@ export const mockProducts: Product[] = [
     fat: 26,
     image: '/products/choco.webp',
     category: 'Сладости',
-    tags: ['шоколад', 'молочный', 'фундук', 'перекус'],
+    tags: ['шоколад', 'молочный', 'фундук', 'перекус', 'сладости'],
     stores: [
       {
         storeId: '10',
@@ -223,7 +223,7 @@ export const mockProducts: Product[] = [
     fat: 25.8,
     image: '/products/snickers.webp',
     category: 'Сладости',
-    tags: ['батончик', 'шоколад', 'арахис', 'перекус'],
+    tags: ['батончик', 'шоколад', 'арахис', 'перекус', 'сладости'],
     stores: [
       {
         storeId: '7',
@@ -259,7 +259,7 @@ export const mockProducts: Product[] = [
     fat: 8,
     image: '/products/quaker.webp',
     category: 'Крупы и хлопья',
-    tags: ['овсянка', 'завтрак', 'клетчатка', 'цельнозерновой'],
+    tags: ['овсянка', 'завтрак', 'клетчатка', 'цельнозерновой', 'крупа'],
     stores: [
       {
         storeId: '1',
@@ -295,7 +295,7 @@ export const mockProducts: Product[] = [
     fat: 3.3,
     image: '/products/mistral.webp',
     category: 'Крупы и хлопья',
-    tags: ['гречка', 'крупа', 'без глютена', 'ЗОЖ'],
+    tags: ['гречка', 'крупа', 'без глютена', 'ЗОЖ', 'крупа'],
     stores: [
       {
         storeId: '5',
@@ -331,7 +331,7 @@ export const mockProducts: Product[] = [
     fat: 3.5,
     image: '/products/activia.webp',
     category: 'Молочные продукты',
-    tags: ['йогурт', 'пробиотики', 'натуральный', 'кишечник'],
+    tags: ['йогурт', 'пробиотики', 'натуральный', 'кишечник', 'молочные продукты'],
     stores: [
       {
         storeId: '4',
@@ -367,7 +367,7 @@ export const mockProducts: Product[] = [
     fat: 3.2,
     image: '/products/kefir.webp',
     category: 'Молочные продукты',
-    tags: ['кефир', 'молоко', 'кишечник', 'кальций'],
+    tags: ['кефир', 'молоко', 'кишечник', 'кальций', 'молочные продукты'],
     stores: [
       {
         storeId: '2',
@@ -403,7 +403,7 @@ export const mockProducts: Product[] = [
     fat: 5,
     image: '/products/prostokv.webp',
     category: 'Молочные продукты',
-    tags: ['творог', 'белок', 'кальций', 'ЗОЖ'],
+    tags: ['творог', 'белок', 'кальций', 'ЗОЖ', 'молочные продукты'],
     stores: [
       {
         storeId: '10',
@@ -439,7 +439,7 @@ export const mockProducts: Product[] = [
     fat: 0,
     image: '/products/greenfield.webp',
     category: 'Напитки',
-    tags: ['чай', 'зеленый', 'жасмин', 'антиоксиданты'],
+    tags: ['чай', 'зеленый', 'жасмин', 'антиоксиданты', 'напиток'],
     stores: [
       {
         storeId: '3',
@@ -475,7 +475,7 @@ export const mockProducts: Product[] = [
     fat: 0.1,
     image: '/products/fruto.webp',
     category: 'Детское питание',
-    tags: ['пюре', 'фрукты', 'натуральное', 'детское'],
+    tags: ['пюре', 'фрукты', 'натуральное', 'детское', 'яблоки', 'сливы'],
     stores: [
       {
         storeId: '5',
@@ -511,7 +511,7 @@ export const mockProducts: Product[] = [
     fat: 2.5,
     image: '/products/balance.webp',
     category: 'Молочные продукты',
-    tags: ['йогурт', 'бифидобактерии', 'клубника', 'кишечник'],
+    tags: ['йогурт', 'бифидобактерии', 'клубника', 'кишечник', 'молочные продукты', 'ягоды'],
     stores: [
       {
         storeId: '6',
@@ -547,7 +547,7 @@ export const mockProducts: Product[] = [
     fat: 1.3,
     image: '/products/borodino.webp',
     category: 'Хлеб и выпечка',
-    tags: ['хлеб', 'ржаной', 'бородинский', 'ГОСТ'],
+    tags: ['хлеб', 'ржаной', 'бородинский', 'ГОСТ', 'выпечка'],
     stores: [
       {
         storeId: '2',
@@ -583,7 +583,7 @@ export const mockProducts: Product[] = [
     fat: 24,
     image: '/products/cheese.webp',
     category: 'Молочные продукты',
-    tags: ['сыр', 'сливочный', 'филадельфия', 'закуска'],
+    tags: ['сыр', 'сливочный', 'филадельфия', 'закуска', 'молочные продукты'],
     stores: [
       {
         storeId: '8',
@@ -619,7 +619,7 @@ export const mockProducts: Product[] = [
     fat: 10,
     image: '/products/musli.webp',
     category: 'Завтраки',
-    tags: ['мюсли', 'ягоды', 'цельнозерновой', 'завтрак'],
+    tags: ['мюсли', 'ягоды', 'цельнозерновой', 'завтрак', 'клубника', 'черника'],
     stores: [
       {
         storeId: '1',
@@ -645,7 +645,8 @@ export const mockProducts: Product[] = [
     }
   }
 ];
-// Заменили поля aisle/shelf на point прямо в данных выше.
+
+// В функции GET замените блок фильтрации по forbidden на этот:
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url)
@@ -684,34 +685,36 @@ export async function GET(request: NextRequest) {
           const user = await db.collection('users').findOne({ _id: new ObjectId(payload.userId) })
           const prefs = user?.preferences
           if (prefs) {
-            // remove products that match forbidden words/tags (support name/category and tags, case-insensitive)
+            // Filter by forbidden tags (exact match)
             const forbidden: string[] = prefs.forbidden || []
             if (forbidden.length > 0) {
-              const forbiddenLower = forbidden.map(f => String(f).toLowerCase())
+              const forbiddenLower = forbidden.map(f => String(f).toLowerCase().trim())
+              
               result = result.filter(p => {
-                const name = String(p.name || '').toLowerCase()
-                const category = String(p.category || '').toLowerCase()
-                const description = String(p.description || '').toLowerCase()
-                const tags = (p.tags || []).map((t: any) => String(t).toLowerCase())
-
-                // if any forbidden token appears in name, category, description or tags (substring match), exclude
-                for (const f of forbiddenLower) {
-                  if (!f) continue
-                  if (name.includes(f) || category.includes(f) || description.includes(f)) return false
-                  // tag matches if either the tag contains the forbidden token or vice-versa (to catch 'молоко' vs 'молочка')
-                  if (tags.some(t => t.includes(f) || f.includes(t))) return false
+                const productTags = (p.tags || []).map(t => String(t).toLowerCase().trim())
+                
+                // Check if any forbidden tag matches any product tag
+                for (const forbiddenTag of forbiddenLower) {
+                  if (productTags.includes(forbiddenTag)) {
+                    return false // Exclude product if forbidden tag matches
+                  }
                 }
-                return true
+                return true // Keep product if no forbidden tags match
               })
             }
+
             // simple dietaryRestrictions filter: if product has nutritionalInfo flags that conflict, exclude
-            const dietary: string[] = prefs.dietaryRestrictions || []
+            const dietary: string[] = prefs.lifestyle || []
             if (dietary.length > 0) {
               result = result.filter(p => {
                 for (const dr of dietary) {
-                  if (dr === 'gluten-free' && p.nutritionalInfo?.glutenFree === false) return false
-                  if (dr === 'lactose-free' && p.nutritionalInfo?.lactoseFree === false) return false
-                  if (dr === 'vegan' && p.nutritionalInfo?.vegan === false) return false
+                  if (dr === 'безглютеновое питание' && p.nutritionalInfo?.glutenFree === false) return false
+                  if (dr === 'безлактозное питание' && p.nutritionalInfo?.lactoseFree === false) return false
+                  if (dr === 'веганство' && p.nutritionalInfo?.vegan === false) return false
+                  if (dr === 'вегетарианство' && p.nutritionalInfo?.vegan === false) return false
+                  if (dr === 'диабет 1 типа' && p.nutritionalInfo?.diabeticFriendly === false) return false
+                  if (dr === 'диабет 2 типа' && p.nutritionalInfo?.vegan === false) return false
+                  if (dr === 'без сахара' && p.nutritionalInfo?.lowGi === false) return false
                 }
                 return true
               })

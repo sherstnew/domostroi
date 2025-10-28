@@ -343,9 +343,6 @@ export default function ProductPage() {
                             {storeInfo.name}
                           </Link>
                           <p className="text-sm text-gray-600">{storeInfo.address}</p>
-                          <p className="text-sm text-gray-600">
-                            Отдел: {aisle}, Полка: {shelf}
-                          </p>
                         </div>
                         <div className="text-right">
                           <div className="text-lg font-bold text-[var(--accent-orange)]">

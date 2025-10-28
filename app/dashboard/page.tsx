@@ -24,6 +24,9 @@ export default function Dashboard() {
   const router = useRouter();
   const { user, isLoading } = useAuth();
   const toasts = useToasts()
+  const { updateUser } = useAuth();
+  const [filteredProducts, setFilteredProducts] = useState<any[]>([])
+  const [productsLoading, setProductsLoading] = useState<boolean>(true)
   const [prefs, setPrefs] = useState<any>({})
 
   // Редирект если пользователь не авторизован
@@ -71,6 +74,7 @@ export default function Dashboard() {
     loadPrefs();
 
     const loadProducts = async () => {
+      setProductsLoading(true)
       try {
         const token = localStorage.getItem('token')
         const res = await fetch('/api/products', { headers: token ? { Authorization: `Bearer ${token}` } : undefined })
@@ -78,17 +82,21 @@ export default function Dashboard() {
         const jd = await res.json()
         let prods = jd.products || []
         const selStore = (user as any)?.selectedStore
-        if (selStore) {
-          prods = [...prods].sort((a: any, b: any) => {
-            const aHas = (a.stores || []).some((s: any) => String(s.storeId) === String(selStore) && s.available)
-            const bHas = (b.stores || []).some((s: any) => String(s.storeId) === String(selStore) && s.available)
-            if (aHas === bHas) return 0
-            return aHas ? -1 : 1
-          })
-        }
+        // сохраняем все продукты как есть
         setAllProducts(prods)
-        setSearchResults(prods)
+
+        // фильтруем набор продуктов по выбранному магазину (если он выбран) и используем
+        // этот фильтр как начальную выдачу
+        if (selStore) {
+          const filtered = prods.filter((p: any) => (p.stores || []).some((s: any) => String(s.storeId) === String(selStore)))
+          setFilteredProducts(filtered)
+          setSearchResults(filtered)
+        } else {
+          setFilteredProducts(prods)
+          setSearchResults(prods)
+        }
       } catch (e) { console.error('Failed to load products', e) }
+      finally { setProductsLoading(false) }
     }
     loadProducts()
 
@@ -96,6 +104,20 @@ export default function Dashboard() {
       router.push("/login");
     }
   }, [user, isLoading, router]);
+
+  // Если пользователь или полный список продуктов изменился — пересчитаем фильтр по магазину
+  useEffect(() => {
+    const selStore = (user as any)?.selectedStore
+    if (!allProducts || allProducts.length === 0) return
+    if (selStore) {
+      const filtered = allProducts.filter((p: any) => (p.stores || []).some((s: any) => String(s.storeId) === String(selStore)))
+      setFilteredProducts(filtered)
+      setSearchResults(filtered)
+    } else {
+      setFilteredProducts(allProducts)
+      setSearchResults(allProducts)
+    }
+  }, [user, allProducts])
 
   if (isLoading) {
     return (
@@ -175,7 +197,7 @@ export default function Dashboard() {
         {/* Поиск с интегрированными целями */}
         <ProductSearch
           onSearchResults={setSearchResults}
-          products={allProducts}
+          products={filteredProducts}
           hasDiabetes={prefs?.healthConditions?.includes('diabetes')}
         />
 
@@ -235,9 +257,44 @@ export default function Dashboard() {
             Все продукты
           </h2>
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {searchResults.length === 0 ? (
+            {productsLoading ? (
               <div className="col-span-full text-center text-gray-500 py-8">
-                Ничего не найдено по вашему запросу
+                <div className="text-center">
+                  <div className="w-12 h-12 border-4 border-[var(--light-green)] border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                  <p className="text-gray-600">Загрузка продуктов...</p>
+                </div>
+              </div>
+            ) : searchResults.length === 0 ? (
+              <div className="col-span-full text-center text-gray-500 py-8">
+                <div>Ничего не найдено по вашему запросу</div>
+                {(user as any)?.selectedStore && (
+                  <div className="mt-4 text-sm text-gray-600">
+                    <div>Обратите внимание: выбран магазин <span className="font-medium text-[var(--dark-green)]">{(user as any).selectedStoreName || (user as any).selectedStore}</span>, некоторые продукты в этом магазине могут отсутствовать.</div>
+                    <div className="mt-2 flex justify-center">
+                      <Button variant="ghost" onClick={async () => {
+                        try {
+                          const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null
+                          const res = await fetch('/api/user/store', { method: 'DELETE', headers: token ? { Authorization: `Bearer ${token}` } : undefined })
+                          if (!res.ok) {
+                            toasts?.add?.('Не удалось сбросить магазин', 'error')
+                            return
+                          }
+                          const data = await res.json()
+                          // обновим контекст пользователя
+                          try { updateUser(data.user) } catch (e) {}
+                          // сбросим фильтр в UI
+                          setFilteredProducts(allProducts)
+                          setSearchResults(allProducts)
+                          toasts?.add?.('Магазин сброшен', 'success')
+                          window.location.reload();
+                        } catch (e) {
+                          console.error('Failed to reset store', e)
+                          toasts?.add?.('Ошибка при сбросе магазина', 'error')
+                        }
+                      }}>Сбросить выбранный магазин</Button>
+                    </div>
+                  </div>
+                )}
               </div>
             ) : (
               searchResults.map((product) => (
