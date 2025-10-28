@@ -22,15 +22,16 @@ jobs:
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
         run: |
-          echo "Длина SSH ключа: ${#SSH_PRIVATE_KEY} символов"
           echo "$SSH_PRIVATE_KEY" > private_key
           chmod 600 private_key
           ssh -o StrictHostKeyChecking=no -i private_key root@89.23.101.217 << 'EOF'
+            cd ~/domostroi
+
             cat > .env.production << 'ENV_EOF'
             MONGODB_URI=$MONGODB_URI
             JWT_SECRET=$JWT_SECRET
             ENV_EOF
-            cd ~/domostroi
+            
             sudo docker stop domostroi || true
             sudo docker rm domostroi || true
             git pull origin master
