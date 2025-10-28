@@ -19,12 +19,14 @@ jobs:
       - name: SSH into VM and deploy
         env:
           SSH_PRIVATE_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+          SSH_HOST: ${{ secrets.SSH_HOST }}
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
         run: |
           echo "$SSH_PRIVATE_KEY" > private_key
           chmod 600 private_key
-          ssh -o StrictHostKeyChecking=no -i private_key root@89.23.101.217 << EOF
+          ssh -o StrictHostKeyChecking=no -i private_key $SSH_USERNAME@$SSH_HOST
             cd ~/domostroi
 
             echo "MONGODB_URI=$MONGODB_URI" > .env.production
