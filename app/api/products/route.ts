@@ -4,7 +4,7 @@ import { Product } from '@/types'
 import { getTokenFromHeaders, verifyToken } from '@/lib/auth'
 import { ObjectId } from 'mongodb'
 
-const mockProducts: Product[] = [
+export const mockProducts: Product[] = [
   {
     _id: '1',
     name: 'Органические яблоки Гренни Смит',

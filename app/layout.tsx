@@ -5,6 +5,7 @@ import { AuthProvider } from '@/context/AuthContext'
 import ToastsProvider from '@/components/ui/ToastProvider'
 import Header from '@/components/layout/Header'
 import Footer from '@/components/layout/Footer'
+import { Suspense } from 'react'
 
 const inter = Inter({ 
   subsets: ['latin', 'cyrillic'],
@@ -29,13 +30,15 @@ export default function RootLayout({
   return (
     <html lang="ru" className={`${inter.variable} ${playfair.variable}`}>
       <body className="min-h-screen bg-white font-sans">
-        <AuthProvider>
+        <Suspense>
+          <AuthProvider>
           <ToastsProvider>
             <Header />
             <main className="min-h-screen">{children}</main>
             <Footer />
           </ToastsProvider>
         </AuthProvider>
+        </Suspense>
       </body>
     </html>
   )
