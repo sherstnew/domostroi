@@ -15,21 +15,9 @@ export default function Footer() {
           <div>
             <h4 className="font-bold mb-4">Навигация</h4>
             <ul className="space-y-2 text-sm text-gray-300">
-              <li><a href="/dashboard" className="hover:text-white transition-colors">Дашборд</a></li>
               <li><a href="/products" className="hover:text-white transition-colors">Продукты</a></li>
               <li><a href="/stores" className="hover:text-white transition-colors">Магазины</a></li>
-              <li><a href="/about" className="hover:text-white transition-colors">О нас</a></li>
-            </ul>
-          </div>
-
-          {/* Поддержка */}
-          <div>
-            <h4 className="font-bold mb-4">Поддержка</h4>
-            <ul className="space-y-2 text-sm text-gray-300">
-              <li><a href="/help" className="hover:text-white transition-colors">Помощь</a></li>
-              <li><a href="/contact" className="hover:text-white transition-colors">Контакты</a></li>
-              <li><a href="/privacy" className="hover:text-white transition-colors">Конфиденциальность</a></li>
-              <li><a href="/terms" className="hover:text-white transition-colors">Условия</a></li>
+              <li><a href="/profile" className="hover:text-white transition-colors">Профиль</a></li>
             </ul>
           </div>
         </div>
