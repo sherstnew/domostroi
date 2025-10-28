@@ -37,6 +37,6 @@ jobs:
             sudo docker stop domostroi || true
             sudo docker rm domostroi || true
             git pull origin master
-            docker build -t domostroi .
+            docker build -f Dockerfile.production -t domostroi .
             sudo docker run -d -p 2056:3000 --name domostroi domostroi
           EOF
