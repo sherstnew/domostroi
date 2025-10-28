@@ -22,7 +22,7 @@ jobs:
           MONGODB_URI: ${{ secrets.MONGODB_URI }}
           JWT_SECRET: ${{ secrets.JWT_SECRET }}
         run: |
-          echo "$SSH_PRIVATE_KEY" &gt; private_key
+          echo "$SSH_PRIVATE_KEY" > private_key
           chmod 600 private_key
           cat > .env.production << EOF
           MONGODB_URI=$MONGODB_URI
