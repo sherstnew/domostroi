@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
 
     if (!user) {
       return NextResponse.json(
-        { error: 'Неверный email или пароль' },
+        { error: 'Пользователя не существует' },
         { status: 401 }
       )
     }

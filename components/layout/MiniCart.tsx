@@ -4,8 +4,10 @@ import React, { useEffect, useState } from 'react'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 import { useToasts } from '@/components/ui/toast'
+import { useAuth } from '@/context/AuthContext'
 
 export default function MiniCart({ onClose }: { onClose?: () => void }) {
+  const { user } = useAuth();
   const [items, setItems] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const toasts = useToasts()
@@ -138,7 +140,8 @@ export default function MiniCart({ onClose }: { onClose?: () => void }) {
           <div className="text-sm text-gray-600">Итого</div>
           <div className="font-bold">{total} ₽</div>
         </div>
-        <div className="flex gap-2">
+        <div className="flex flex-col gap-2">
+          <Link href={typeof (user as any)?.selectedStore === 'string' ? `/map/?storeId=${(user as any).selectedStore}` : '/map/?storeId=1'}><Button className="w-full bg-[var(--light-green)] text-white" onClick={onClose}>Открыть карту</Button></Link>
           <Button className="w-full" onClick={clearCart} disabled={items.length === 0}>Очистить</Button>
         </div>
       </div>
