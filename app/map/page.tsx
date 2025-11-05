@@ -35,11 +35,10 @@ export default function MapPage() {
     // remove duplicates but preserve order (Set used only for dedupe)
     const deduped = Array.from(new Set(mandatoryArray));
 
-    if (deduped.length < 1) return undefined;
-
     if (includeEntrance) deduped.unshift("Вход");
     if (includeExit) deduped.push("Выход");
 
+    if (deduped.length < 2) return undefined;
 
     const rawRoute = findShortestPathWithMandatoryPoints(storeMap, deduped);
     return rawRoute;
